@@ -1,21 +1,36 @@
-subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
-subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients
-subj = [subj1, subj2];
+%   This script runs analyses to replicate some general hypothesis, for
+%   validation of the already present data.
 
-%% general settings
-wdir = 'C:\Users\David\projekte\wcst\';
-metric = {'ERP'};                                                             % two different options available (1) ERP and (2) TFR
+%   Hypotheses:
+%   -
+%   -
 
-for k = 1:numel(metric)
-    filename = strcat(metric{k}, '_results.mat');
-    
-    try
-        load(fullfile(wdir, 'results', filename))
-    catch
-        fprintf('\n%s-results not available, starting the estimation\n', metric{k})
-        results_estimation(wdir, subj, metric{k});
-    end
+%   Copyright (C) Mai 2021
+%   D. Pedrosa, University Hospital of Gießen and Marburg
+
+%   This software may be used, copied, or redistributed as long as it is
+%   not sold and this copyright notice is reproduced on each copy made.
+%   This routine is provided as is without any express or implied
+%   warranties whatsoever.
+
+
+%% General settings
+if strcmp(getenv('username'), 'dpedrosa')
+    data_dir = 'D:\skripte\lambda\data\';
 end
+subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
+subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];      % ET-Patients (not used here)
+subj = subj1; % [subj1, subj2];
+metric = {'ERP'};                                                           % two different options available (1) ERP and (2) TFR
+try
+    load(fullfile(data_dir, 'data', 'avgs.mat'))
+catch
+    fprintf('\n Averages not found ar %s, storing data again', data_dir)
+    all_subj = [subj1, subj2];
+    estimate_averages(all_subj)
+end
+wdir = 'C:\Users\David\projekte\wcst\';
+
 
 %%
 iter = 0; clear AVG*; avg1 = {}; avg2 = {};

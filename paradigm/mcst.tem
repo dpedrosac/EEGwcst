@@ -1,0 +1,121 @@
+# Template used by WIS1.sce
+
+# variables:
+# $st		trial order in the series
+# $tb		target button
+# $stim		picture part stimulus            
+# $st $c $stim $tb 	event codes to logfile
+
+# $t1		ISI feedback onset (random 1000-1800 ms)
+
+IF '$st == 1';
+   trial {                            
+	      correct_feedback = anti ;
+	      incorrect_feedback = shift3 ; 
+
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+	      
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;           
+	      
+   };
+ ENDIF;           
+ 
+ IF '$st == 2';
+   trial {                            
+	      correct_feedback = repeat1 ;
+	      incorrect_feedback = shift2 ;      
+	
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;           
+	      
+   };
+ ENDIF;     
+   
+IF '$st == 3';
+  trial {                               
+	      correct_feedback = repeat2 ;
+	      incorrect_feedback = failed ;
+
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+	
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;          
+   };
+ ENDIF;
+ 
+IF '$st == 4';
+  trial {                               
+	      correct_feedback = repeat3 ;
+	      incorrect_feedback = failed ;
+
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+	
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;          
+   };
+ ENDIF;
+                     
+
+IF '$st == 5';
+  trial {                               
+	      correct_feedback = repeat4 ;
+	      incorrect_feedback = failed ;
+
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+	
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;          
+   };
+ ENDIF;
+ 
+ IF '$st > 5';
+  trial {                               
+	      correct_feedback = repeat5 ;
+	      incorrect_feedback = failed ;
+
+	      picture blanck ;		           # card - feedback ISI
+	      time = 0 ; 
+	      duration = next_picture ;
+	
+	      picture $stim ;
+	      deltat = 1500 ;
+	      duration = target_response ;      
+	      code = " $st $c $stim $tb ";
+	      port_code = $st ;
+	      target_button = $tb ;          
+   };
+ ENDIF;
+                      

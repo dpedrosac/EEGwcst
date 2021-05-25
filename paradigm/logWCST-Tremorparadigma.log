@@ -1,0 +1,418 @@
+Scenario - WIS1
+Logfile written - 08/10/2015 18:55:21
+Messung WA Subject 30y
+
+Trial	Event Type	Code	Time	TTime	Uncertainty	Duration	Uncertainty	ReqTime	ReqDur	Stim Type	Pair Index
+
+1	Response	33	6586	6586	2
+2	Picture	 1 N e3r 3 	21725	15028	1	16697	2	15000	targ resp	miss	0
+2A	Response	32	38362	0	1
+2A	Sound	fb_shi3	48362	10000	1			10000		other	0
+3	Picture	 2 N t4v 4 	64470	15028	2	18034	3	15000	targ resp	miss	0
+3	Response	32	82431	32989	2
+3A	Sound	fb_shi2	92432	10000	1			10000		other	0
+4	Picture	 3 N t2z 2 	108552	15028	1	12690	2	15000	targ resp	hit	9
+4A	Response	32	121073	0	1
+4A	Sound	fb_rep2	131073	10000	1			10000		other	0
+5	Picture	 4 N b3r 3 	147123	15028	1	22375	2	15000	targ resp	hit	12
+5A	Response	33	169454	0	1
+5A	Sound	fb_rep3	179454	10000	1			10000		other	0
+6	Picture	 5 N e1a 1 	195546	15028	1	10352	3	15000	targ resp	hit	15
+6A	Response	31	205860	0	1
+6A	Sound	fb_rep4	212860	7000	1			7000		other	0
+7	Picture	 6 N c1z 1 	228941	15028	1	9518	2	15000	targ resp	hit	18
+7A	Response	31	238434	0	1
+7A	Sound	fb_rep5	245434	7000	1			7000		other	0
+8	Picture	 7 N t2a 2 	261501	15028	2	9852	3	15000	targ resp	hit	21
+8A	Response	32	271327	0	1
+8A	Sound	fb_rep5	278327	7000	1			7000		other	0
+9	Picture	 7 N e3z 3 	294395	15027	2	11355	3	15000	targ resp	hit	24
+9A	Response	33	305657	0	1
+9A	Sound	fb_rep5	312657	7000	1			7000		other	0
+10	Picture	 7 N c4r 4 	328792	15027	2	10353	3	15000	targ resp	hit	27
+10A	Response	34	339028	0	1
+10A	Sound	fb_rep5	346028	7000	1			7000		other	0
+11	Picture	 1 F b2a 4 	362187	15027	2	18034	3	15000	targ resp	miss	0
+11A	Response	32	380066	0	1
+11A	Sound	fb_shi3	390066	10000	1			10000		other	0
+12	Picture	 2 F t2z 1 	406102	15028	1	15863	2	15000	targ resp	miss	0
+12	Response	34	421900	30826	2
+12A	Sound	fb_shi2	431901	10000	1			10000		other	0
+13	Picture	 3 F c1v 3 	448013	15028	1	14527	2	15000	targ resp	hit	36
+13A	Response	33	462458	0	1
+13A	Sound	fb_rep2	472458	10000	1			10000		other	0
+14	Picture	 4 F e4r 2 	488588	15028	1	24378	2	15000	targ resp	hit	39
+14A	Response	32	512915	0	1
+14A	Sound	fb_rep3	522915	10000	1			10000		other	0
+15	Picture	 5 F t4a 1 	539014	15027	2	17533	3	15000	targ resp	hit	42
+15A	Response	31	556506	0	1
+15A	Sound	fb_rep4	563506	7000	1			7000		other	0
+16	Picture	 6 F c2z 3 	579589	15027	2	15362	3	15000	targ resp	hit	45
+16A	Response	33	594829	0	1
+16A	Sound	fb_rep5	601829	7000	1			7000		other	0
+17	Picture	 7 F b3v 4 	617994	15028	1	8682	3	15000	targ resp	hit	48
+17A	Response	34	626604	0	1
+17A	Sound	fb_rep5	633604	7000	1			7000		other	0
+18	Picture	 7 F c2r 3 	649719	15028	1	11521	3	15000	targ resp	hit	51
+18A	Response	33	661093	0	1
+18A	Sound	fb_rep5	668093	7000	1			7000		other	0
+19	Picture	 1 C c1v 2 	684283	15028	1	9684	3	15000	targ resp	miss	0
+19A	Response	33	693827	0	1
+19A	Sound	fb_shi3	703827	10000	1			10000		other	0
+20	Picture	 2 C t2a 3 	719849	15028	1	13024	2	15000	targ resp	miss	0
+20A	Response	32	732787	0	1
+20A	Sound	fb_shi2	742787	10000	1			10000		other	0
+21	Picture	 3 C t3z 4 	758754	15028	1	9518	2	15000	targ resp	hit	60
+21A	Response	34	768234	0	1
+21A	Sound	fb_rep2	778234	10000	1			10000		other	0
+22	Picture	 4 C e4a 3 	794320	15028	1	17532	2	15000	targ resp	hit	63
+22	Response	33	811825	32533	2
+22A	Sound	fb_rep3	821826	10000	1			10000		other	0
+23	Picture	 5 C c4r 1 	837900	15027	2	9184	3	15000	targ resp	hit	66
+23A	Response	31	846953	0	1
+23A	Sound	fb_rep4	853953	7000	1			7000		other	0
+24	Picture	 6 C t4a 3 	869959	15027	2	16197	3	15000	targ resp	hit	69
+24A	Response	33	886073	0	1
+24A	Sound	fb_rep5	893073	7000	1			7000		other	0
+25	Picture	 7 C b2r 1 	909032	15028	1	10686	2	15000	targ resp	hit	72
+25A	Response	31	919606	0	1
+25A	Sound	fb_rep5	926606	7000	1			7000		other	0
+26	Picture	 1 F t3v 1 	942761	15028	1	10519	2	15000	targ resp	miss	0
+26A	Response	32	953137	0	1
+26A	Sound	fb_shi3	963137	10000	1			10000		other	0
+27	Picture	 2 F b3r 4 	979161	15027	2	15028	3	15000	targ resp	hit	78
+27A	Response	34	994173	0	1
+27A	Sound	fb_rep1	1001173	7000	1			7000		other	0
+28	Picture	 3 F c2z 3 	1017232	15028	1	13191	2	15000	targ resp	hit	81
+28A	Response	33	1030260	0	1
+28A	Sound	fb_rep2	1040260	10000	1			10000		other	0
+29	Picture	 4 F t4a 1 	1056304	15028	1	14193	2	15000	targ resp	hit	84
+29	Response	31	1070338	29062	1
+29A	Sound	fb_rep3	1080339	10000	1			10000		other	0
+30	Picture	 5 F c4v 3 	1096378	15028	1	10186	2	15000	targ resp	hit	87
+30A	Response	33	1106425	0	1
+30A	Sound	fb_rep4	1113425	7000	1			7000		other	0
+31	Picture	 6 F t3z 1 	1129439	15027	2	12356	4	15000	targ resp	hit	90
+31A	Response	31	1141712	0	1
+31A	Sound	fb_rep5	1148712	7000	1			7000		other	0
+32	Picture	 7 F e3z 2 	1164838	15028	1	13191	2	15000	targ resp	hit	93
+32A	Response	32	1177959	0	1
+32A	Sound	fb_rep5	1184959	7000	1			7000		other	0
+33	Picture	 7 F b1v 4 	1201072	15028	1	12356	2	15000	targ resp	hit	96
+33A	Response	34	1213406	0	1
+33A	Sound	fb_rep5	1220406	7000	1			7000		other	0
+34	Picture	 1 N b2a 2 	1236470	15027	2	10019	3	15000	targ resp	miss	0
+34A	Response	34	1246460	0	1
+34A	Sound	fb_shi3	1256460	10000	1			10000		other	0
+35	Picture	 2 N e3z 3 	1272537	15028	1	34230	2	15000	targ resp	hit	102
+35A	Response	33	1306657	0	1
+35A	Sound	fb_rep1	1313657	7000	1			7000		other	0
+36	Picture	 3 N c4r 4 	1329643	15028	1	21373	2	15000	targ resp	hit	105
+36A	Response	34	1350887	0	1
+36A	Sound	fb_rep2	1360887	10000	1			10000		other	0
+37	Picture	 4 N e1z 1 	1377064	15028	1	8348	3	15000	targ resp	hit	108
+37A	Response	31	1385377	0	1
+37A	Sound	fb_rep3	1395377	10000	1			10000		other	0
+38	Picture	 5 N t3z 3 	1411461	15028	1	32727	2	15000	targ resp	hit	111
+38	Response	33	1444137	47704	2
+38A	Sound	fb_rep4	1451138	7000	1			7000		other	0
+39	Picture	 6 N c2r 2 	1467230	15027	2	8516	3	15000	targ resp	hit	114
+39A	Response	32	1475593	0	1
+39A	Sound	fb_rep5	1482593	7000	1			7000		other	0
+40	Picture	 7 N t3v 3 	1498622	15028	1	15528	3	15000	targ resp	hit	117
+40A	Response	33	1514075	0	1
+40A	Sound	fb_rep5	1521075	7000	1			7000		other	0
+41	Picture	 1 C c1z 4 	1537193	15028	1	7848	2	15000	targ resp	miss	0
+41A	Response	31	1544892	0	1
+41A	Sound	fb_shi3	1554892	10000	1			10000		other	0
+42	Picture	 2 C t3v 2 	1570922	15028	1	19035	2	15000	targ resp	hit	123
+42A	Response	32	1589920	0	1
+42A	Sound	fb_rep1	1596920	7000	1			7000		other	0
+43	Picture	 3 C b1a 3 	1613000	15028	1	7514	2	15000	targ resp	hit	126
+43A	Response	33	1620418	0	1
+43A	Sound	fb_rep2	1630418	10000	1			10000		other	0
+44	Picture	 4 C e3r 1 	1646562	15028	1	7848	2	15000	targ resp	hit	129
+44A	Response	31	1654268	0	1
+44A	Sound	fb_rep3	1664268	10000	1			10000		other	0
+45	Picture	 5 C e1z 4 	1680458	15028	1	14360	2	15000	targ resp	hit	132
+45A	Response	34	1694666	0	1
+45A	Sound	fb_rep4	1701666	7000	1			7000		other	0
+46	Picture	 6 C b3r 1 	1717860	15027	2	8182	3	15000	targ resp	hit	135
+46A	Response	31	1725962	0	1
+46A	Sound	fb_rep5	1732962	7000	1			7000		other	0
+47	Picture	 7 C t2z 4 	1749085	15028	1	7180	2	15000	targ resp	hit	138
+47A	Response	34	1756140	0	1
+47A	Sound	fb_rep5	1763140	7000	1			7000		other	0
+48	Picture	 1 N b3v 3 	1779140	15028	2	8015	3	15000	targ resp	miss	0
+48A	Response	32	1787118	0	1
+48A	Sound	fb_shi3	1797118	10000	1			10000		other	0
+49	Picture	 2 N b1a 1 	1813203	15028	2	10854	3	15000	targ resp	miss	0
+49	Response	34	1824001	25826	2
+49A	Sound	fb_shi2	1834002	10000	1			10000		other	0
+50	Picture	 3 N c1v 1 	1850105	15028	1	13024	2	15000	targ resp	hit	147
+50A	Response	31	1862963	0	1
+50A	Sound	fb_rep2	1872963	10000	1			10000		other	0
+51	Picture	 4 N t4v 4 	1889010	15028	1	13859	2	15000	targ resp	hit	150
+51	Response	34	1902721	28739	2
+51A	Sound	fb_rep3	1912722	10000	1			10000		other	0
+52	Picture	 5 N c2z 2 	1928750	15028	1	9017	2	15000	targ resp	hit	153
+52A	Response	32	1937690	0	1
+52A	Sound	fb_rep4	1944690	7000	1			7000		other	0
+53	Picture	 6 N e4r 4 	1960810	15028	1	8014	2	15000	targ resp	hit	156
+53A	Response	34	1968668	0	1
+53A	Sound	fb_rep5	1975668	7000	1			7000		other	0
+54	Picture	 7 N t4a 4 	1991700	15028	1	7013	2	15000	targ resp	hit	159
+54A	Response	34	1998687	0	1
+54A	Sound	fb_rep5	2005687	7000	1			7000		other	0
+55	Picture	 7 N b3r 3 	2021755	15027	2	8349	3	15000	targ resp	hit	162
+55	Response	33	2029983	23255	2
+55A	Sound	fb_rep5	2036984	7000	1			7000		other	0
+56	Picture	 7 N c1z 1 	2053147	15028	1	8015	2	15000	targ resp	hit	165
+56A	Response	31	2061120	0	1
+56A	Sound	fb_rep5	2068120	7000	1			7000		other	0
+57	Picture	 1 C b1v 2 	2084204	15028	2	6679	4	15000	targ resp	miss	0
+57A	Response	31	2090820	0	1
+57A	Sound	fb_shi3	2100820	10000	1			10000		other	0
+58	Picture	 2 C b3v 2 	2116931	15027	2	14026	4	15000	targ resp	miss	0
+58A	Response	34	2130898	0	1
+58A	Sound	fb_shi2	2140898	10000	1			10000		other	0
+59	Picture	 3 C c1z 4 	2157005	15027	2	5845	3	15000	targ resp	hit	174
+59A	Response	34	2162673	0	1
+59A	Sound	fb_rep2	2172673	10000	1			10000		other	0
+60	Picture	 4 C b2a 3 	2188731	15028	1	6835	180	15000	targ resp	hit	177
+60A	Response	33	2195566	0	1
+60A	Sound	fb_rep3	2205566	10000	1			10000		other	0
+61	Picture	 5 C e1a 3 	2221625	15028	1	14527	2	15000	targ resp	hit	180
+61A	Response	33	2236123	0	1
+61A	Sound	fb_rep4	2243123	7000	1			7000		other	0
+62	Picture	 6 C e4r 1 	2259194	15027	2	13859	4	15000	targ resp	hit	183
+62A	Response	31	2273008	0	1
+62A	Sound	fb_rep5	2280008	7000	1			7000		other	0
+63	Picture	 7 C t4v 2 	2296096	15028	1	8182	2	15000	targ resp	hit	186
+63A	Response	32	2304145	0	1
+63A	Sound	fb_rep5	2311145	7000	1			7000		other	0
+64	Picture	 1 F c2r 3 	2327320	15027	2	8850	3	15000	targ resp	miss	0
+64A	Response	31	2336079	0	1
+64A	Sound	fb_shi3	2346079	10000	1			10000		other	0
+65	Picture	 2 F c4r 3 	2362218	15028	1	18200	3	15000	targ resp	hit	192
+65	Response	33	2380308	33118	2
+65A	Sound	fb_rep1	2387309	7000	1			7000		other	0
+66	Picture	 3 F t4v 1 	2403294	15028	1	9685	2	15000	targ resp	hit	195
+66	Response	31	2412882	24616	2
+66A	Sound	fb_rep2	2422883	10000	1			10000		other	0
+67	Picture	 4 F b1a 4 	2439027	15028	1	13358	2	15000	targ resp	hit	198
+67	Response	34	2452322	28323	2
+67A	Sound	fb_rep3	2462323	10000	1			10000		other	0
+68	Picture	 5 F e1z 2 	2478433	15028	1	10686	3	15000	targ resp	hit	201
+68	Response	32	2489047	25642	2
+68A	Sound	fb_rep4	2496048	7000	1			7000		other	0
+69	Picture	 6 F e1a 2 	2512162	15028	1	6846	2	15000	targ resp	hit	204
+69	Response	32	2518906	21772	2
+69A	Sound	fb_rep5	2525907	7000	1			7000		other	0
+70	Picture	 7 F b1v 4 	2541884	15028	1	27884	3	15000	targ resp	hit	207
+70A	Response	34	2569684	0	1
+70A	Sound	fb_rep5	2576684	7000	1			7000		other	0
+71	Picture	 1 C t2z 4 	2592811	15028	1	11688	3	15000	targ resp	miss	0
+71	Response	31	2604332	26549	2
+71A	Sound	fb_shi3	2614333	10000	1			10000		other	0
+72	Picture	 2 C e1z 4 	2630381	15028	1	19202	2	15000	targ resp	miss	0
+72A	Response	31	2649521	0	1
+72A	Sound	fb_shi2	2659521	10000	1			10000		other	0
+73	Picture	 3 C c2r 1 	2675464	15038	1	10853	2	15000	targ resp	hit	216
+73A	Response	31	2686246	0	1
+73A	Sound	fb_rep2	2696246	10000	1			10000		other	0
+74	Picture	 4 C b1a 3 	2712365	15027	2	7848	4	15000	targ resp	hit	219
+74	Response	33	2720097	22759	2
+74A	Sound	fb_rep3	2730098	10000	1			10000		other	0
+75	Picture	 5 C c4v 2 	2746094	15027	2	8349	3	15000	targ resp	hit	222
+75A	Response	32	2754269	0	1
+75A	Sound	fb_rep4	2761269	7000	1			7000		other	0
+76	Picture	 6 C b3v 2 	2777319	15028	1	9350	3	15000	targ resp	hit	225
+76A	Response	32	2786523	0	1
+76A	Sound	fb_rep5	2793523	7000	1			7000		other	0
+77	Picture	 7 C b3r 1 	2809712	15028	1	13358	2	15000	targ resp	hit	228
+77A	Response	31	2822929	0	1
+77A	Sound	fb_rep5	2829929	7000	1			7000		other	0
+78	Picture	 7 C t4a 3 	2846113	15028	1	8348	3	15000	targ resp	hit	231
+78	Response	33	2854384	23299	1
+78A	Sound	fb_rep5	2861385	7000	1			7000		other	0
+79	Picture	 1 N t3z 3 	2877504	15028	1	9351	2	15000	targ resp	miss	0
+79A	Response	34	2886798	0	1
+79A	Sound	fb_shi3	2896798	10000	1			10000		other	0
+80	Picture	 2 N t2a 2 	2912903	15028	1	11020	2	15000	targ resp	miss	0
+80	Response	31	2923843	25968	1
+80A	Sound	fb_shi2	2933844	10000	1			10000		other	0
+81	Picture	 3 N e3z 3 	2949971	15028	2	10520	3	15000	targ resp	hit	240
+81	Response	33	2960408	25465	2
+81A	Sound	fb_rep2	2970409	10000	1			10000		other	0
+82	Picture	 4 N b2a 2 	2986372	15028	1	10686	3	15000	targ resp	hit	243
+82A	Response	32	2996974	0	1
+82A	Sound	fb_rep3	3006974	10000	1			10000		other	0
+83	Picture	 5 N t3v 3 	3023106	15027	2	10186	3	15000	targ resp	hit	246
+83A	Response	33	3033219	0	1
+83A	Sound	fb_rep4	3040219	7000	2			7000		other	0
+84	Picture	 6 N b2r 2 	3056335	15028	1	8499	185	15000	targ resp	hit	249
+84A	Response	32	3064834	0	1
+84A	Sound	fb_rep5	3071834	7000	1			7000		other	0
+85	Picture	 7 N b3v 3 	3087893	15028	1	9183	3	15000	targ resp	hit	252
+85A	Response	33	3096929	0	1
+85A	Sound	fb_rep5	3103929	7000	1			7000		other	0
+86	Picture	 7 N t4a 4 	3120119	15028	1	7848	2	15000	targ resp	hit	255
+86	Response	34	3127905	22814	2
+86A	Sound	fb_rep5	3134906	7000	1			7000		other	0
+87	Picture	 7 N e1a 1 	3151009	15027	2	21707	4	15000	targ resp	hit	258
+87A	Response	31	3172614	0	1
+87A	Sound	fb_rep5	3179614	7000	1			7000		other	0
+88	Picture	 1 F c4v 3 	3195759	15028	1	9518	2	15000	targ resp	miss	0
+88A	Response	34	3205188	0	1
+88A	Sound	fb_shi3	3215188	10000	1			10000		other	0
+89	Picture	 2 F t3z 1 	3231158	15028	1	18534	2	15000	targ resp	hit	264
+89A	Response	31	3249577	0	1
+89A	Sound	fb_rep1	3256577	7000	1			7000		other	0
+90	Picture	 3 F e3z 2 	3272568	15028	1	9183	2	15000	targ resp	hit	267
+90A	Response	32	3281672	0	1
+90A	Sound	fb_rep2	3291672	10000	1			10000		other	0
+91	Picture	 4 F t4v 1 	3307799	15027	2	30557	3	15000	targ resp	hit	270
+91	Response	31	3338197	45425	2
+91A	Sound	fb_rep3	3348198	10000	1			10000		other	0
+92	Picture	 5 F b1a 4 	3364237	15028	1	11354	3	15000	targ resp	hit	273
+92	Response	34	3375561	26352	1
+92A	Sound	fb_rep4	3382562	7000	1			7000		other	0
+93	Picture	 6 F e4a 2 	3398634	15028	1	14694	2	15000	targ resp	hit	276
+93A	Response	32	3413245	0	1
+93A	Sound	fb_rep5	3420245	7000	1			7000		other	0
+94	Picture	 7 F b2r 4 	3436370	15028	2	10854	3	15000	targ resp	hit	279
+94A	Response	34	3447095	0	1
+94A	Sound	fb_rep5	3454095	7000	1			7000		other	0
+95	Picture	 7 F t2z 1 	3470099	15027	2	11856	3	15000	targ resp	hit	282
+95	Response	31	3481905	26833	1
+95A	Sound	fb_rep5	3488906	7000	1			7000		other	0
+96	Picture	 1 C c1v 2 	3504997	15028	1	11855	3	15000	targ resp	miss	0
+96	Response	33	3516715	26746	2
+96A	Sound	fb_shi3	3526716	10000	1			10000		other	0
+97	Picture	 2 C t3v 2 	3542900	15027	2	30724	3	15000	targ resp	miss	0
+97A	Response	33	3573559	0	1
+97A	Sound	fb_shi2	3583559	10000	1			10000		other	0
+98	Picture	 3 C t3z 4 	3599672	15028	2	8015	3	15000	targ resp	hit	291
+98A	Response	34	3607570	0	1
+98A	Sound	fb_rep2	3617570	10000	1			10000		other	0
+99	Picture	 4 C e4r 1 	3633568	15028	1	10019	2	15000	targ resp	hit	294
+99	Response	31	3643496	24956	1
+99A	Sound	fb_rep3	3653497	10000	1			10000		other	0
+100	Picture	 5 C b1v 2 	3669635	15028	1	8683	2	15000	targ resp	hit	297
+100A	Response	32	3678145	0	1
+100A	Sound	fb_rep4	3685145	7000	1			7000		other	0
+101	Picture	 6 C e3z 4 	3701193	15028	2	17867	3	15000	targ resp	hit	300
+101	Response	34	3719021	32856	2
+101A	Sound	fb_rep5	3726022	7000	1			7000		other	0
+102	Picture	 7 C b2r 1 	3742102	15028	2	13024	3	15000	targ resp	miss	0
+102A	Response	34	3755108	0	1
+102A	Sound	fb_fail	3762108	7000	1			7000		other	0
+103	Picture	 1 N b1v 1 	3778169	15028	1	8349	2	15000	targ resp	miss	0
+103A	Response	32	3786404	0	1
+103A	Sound	fb_shi3	3796404	10000	1			10000		other	0
+104	Picture	 2 N e4a 4 	3812566	15028	1	14026	2	15000	targ resp	miss	0
+104A	Response	32	3826483	0	1
+104A	Sound	fb_shi2	3836483	10000	1			10000		other	0
+105	Picture	 3 N e1z 1 	3852473	15028	1	11855	2	15000	targ resp	hit	312
+105	Response	31	3864165	26720	2
+105A	Sound	fb_rep2	3874166	10000	1			10000		other	0
+106	Picture	 4 N c4v 4 	3890209	15028	2	18187	184	15000	targ resp	hit	315
+106A	Response	34	3908395	0	1
+106A	Sound	fb_rep3	3918395	10000	1			10000		other	0
+107	Picture	 5 N b2r 2 	3934458	15028	1	13525	2	15000	targ resp	hit	318
+107A	Response	32	3947835	0	1
+107A	Sound	fb_rep4	3954835	7000	1			7000		other	0
+108	Picture	 6 N b1a 1 	3970858	15028	2	10019	3	15000	targ resp	hit	321
+108A	Response	31	3980728	0	1
+108A	Sound	fb_rep5	3987728	7000	1			7000		other	0
+109	Picture	 7 N c2z 2 	4003752	15027	2	9852	3	15000	targ resp	hit	324
+109A	Response	32	4013461	0	1
+109A	Sound	fb_rep5	4020461	7000	1			7000		other	0
+110	Picture	 1 F b1v 4 	4036480	15028	1	8348	3	15000	targ resp	miss	0
+110A	Response	31	4044757	0	1
+110A	Sound	fb_shi3	4054757	10000	1			10000		other	0
+111	Picture	 2 F e4r 2 	4070877	15028	1	12857	2	15000	targ resp	hit	330
+111A	Response	32	4083717	0	1
+111A	Sound	fb_rep1	4090717	7000	1			7000		other	0
+112	Picture	 3 F b3v 4 	4106776	15028	1	9017	2	15000	targ resp	hit	333
+112A	Response	34	4115652	0	1
+112A	Sound	fb_rep2	4125652	10000	1			10000		other	0
+113	Picture	 4 F e4a 2 	4141674	15028	1	15028	2	15000	targ resp	hit	336
+113A	Response	32	4156530	0	1
+113A	Sound	fb_rep3	4166530	10000	1			10000		other	0
+114	Picture	 5 F c4r 3 	4182583	15028	1	9017	2	15000	targ resp	hit	339
+114A	Response	33	4191499	0	1
+114A	Sound	fb_rep4	4198499	7000	1			7000		other	0
+115	Picture	 6 F b2a 4 	4214642	15027	2	8349	3	15000	targ resp	hit	342
+115A	Response	34	4222955	0	1
+115A	Sound	fb_rep5	4229955	7000	1			7000		other	0
+116	Picture	 7 F t3v 1 	4246034	15028	1	11187	2	15000	targ resp	hit	345
+116A	Response	31	4257125	0	1
+116A	Sound	fb_rep5	4264125	7000	1			7000		other	0
+117	Picture	 7 F c1z 3 	4280264	15028	1	10018	2	15000	targ resp	hit	348
+117A	Response	33	4290178	0	1
+117A	Sound	fb_rep5	4297178	7000	1			7000		other	0
+118	Picture	 1 C c1z 4 	4313325	15028	1	23543	2	15000	targ resp	miss	0
+118A	Response	33	4336803	0	1
+118A	Sound	fb_shi3	4346803	10000	1			10000		other	0
+119	Picture	 2 C e1a 3 	4362916	15027	2	15195	3	15000	targ resp	miss	0
+119A	Response	31	4377999	0	1
+119A	Sound	fb_shi2	4387999	10000	1			10000		other	0
+120	Picture	 3 C c4v 2 	4404159	15028	2	15515	184	15000	targ resp	hit	357
+120A	Response	32	4419674	0	1
+120A	Response	32	4421749	2075	1
+121	Picture	 4 C c4r 1 	4436886	15027	2	13024	4	15000	targ resp	hit	360
+121	Response	31	4449851	27992	2
+121A	Sound	fb_rep3	4459852	10000	1			10000		other	0
+122	Picture	 5 C b2a 3 	4475959	15028	1	7514	2	15000	targ resp	hit	363
+122A	Response	33	4483383	0	1
+122A	Sound	fb_rep4	4490383	7000	1			7000		other	0
+123	Picture	 6 C t4v 2 	4506515	15028	1	6846	2	15000	targ resp	hit	366
+123A	Response	32	4513243	0	1
+123A	Sound	fb_rep5	4520243	7000	1			7000		other	0
+124	Picture	 7 C e4a 3 	4536237	15028	1	13358	2	15000	targ resp	hit	369
+124A	Response	33	4549488	0	1
+124A	Sound	fb_rep5	4556488	7000	1			7000		other	0
+125	Picture	 1 N e3r 3 	4572637	15027	2	8850	3	15000	targ resp	miss	0
+125	Response	31	4581423	23813	2
+125A	Sound	fb_shi3	4591424	10000	1			10000		other	0
+126	Picture	 2 N c4v 4 	4607535	15028	2	12356	4	15000	targ resp	miss	0
+126A	Response	33	4619745	0	1
+126A	Sound	fb_shi2	4629745	10000	1			10000		other	0
+127	Picture	 3 N c2z 2 	4645772	15027	2	6346	3	15000	targ resp	hit	378
+127A	Response	32	4651999	0	1
+127A	Sound	fb_rep2	4661999	10000	1			10000		other	0
+128	Picture	 4 N e4r 4 	4677999	15038	1	7681	2	15000	targ resp	hit	381
+128A	Response	34	4685530	0	1
+128A	Sound	fb_rep3	4695530	10000	1			10000		other	0
+129	Picture	 5 N e4a 4 	4711561	15028	1	7013	2	15000	targ resp	hit	384
+129A	Response	34	4718423	0	1
+129A	Sound	fb_rep4	4725423	7000	1			7000		other	0
+130	Picture	 6 N t3z 3 	4741449	15027	2	9184	3	15000	targ resp	hit	387
+130A	Response	33	4750518	0	1
+130A	Sound	fb_rep5	4757518	7000	1			7000		other	0
+131	Picture	 7 N c1v 1 	4773509	15028	1	9851	2	15000	targ resp	hit	390
+131A	Response	31	4783252	0	1
+131A	Sound	fb_rep5	4790252	7000	1			7000		other	0
+132	Picture	 1 F t2a 1 	4806236	15028	1	7514	2	15000	targ resp	miss	0
+132A	Response	32	4813590	0	1
+132A	Sound	fb_shi3	4823590	10000	1			10000		other	0
+133	Picture	 2 F c1v 3 	4839631	15028	1	16196	3	15000	targ resp	hit	396
+133	Response	33	4855743	31140	2
+133A	Response	33	4857341	1597	1
+134	Picture	 3 F e3r 2 	4872525	15028	1	24879	3	15000	targ resp	hit	399
+134A	Response	32	4897260	0	1
+134A	Sound	fb_rep2	4907260	10000	1			10000		other	0
+135	Picture	 4 F b2r 4 	4923452	15027	2	11522	3	15000	targ resp	hit	402
+135	Response	34	4934943	26518	1
+135A	Sound	fb_rep3	4944944	10000	1			10000		other	0
+136	Picture	 5 F t3z 1 	4961022	15028	1	25714	2	15000	targ resp	hit	405
+136A	Response	31	4986678	0	1
+136A	Sound	fb_rep4	4993678	7000	1			7000		other	0
+137	Picture	 6 F c1z 3 	5009779	15028	1	10853	2	15000	targ resp	hit	408
+137A	Response	33	5020528	0	1
+137A	Sound	fb_rep5	5027528	7000	1			7000		other	0
+138	Picture	 7 F e3r 2 	5043508	15028	1	9183	3	15000	targ resp	hit	411
+138A	Response	32	5052623	0	1
+138A	Sound	fb_rep5	5059623	7000	1			7000		other	0
