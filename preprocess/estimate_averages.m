@@ -15,12 +15,12 @@ function estimate_averages(all_subj)
 toi = {             % Different trial number available; for further details cf: ./paradigm/WCST-Tremorparadigma.sce
     [2,3], ...      % Early trials (wo/ alcohol)
     [6,7], ...      % Late trials (wo/ alcohol)
-    [10, 20], ...   % Shift trials(wo/ alcohol)
-    [110, 120], ... % Shift trials(w/ alcohol)
+    [102:103], ...  % Early trials (w/ alcohol)
+    [106:107], ...  % Late trials (w/ alcohol) 
     [21:25], ...    % Right trials (wo/ alcohol)
     [121:125], ...  % Right trials (w/ alcohol)
-    [102:103], ...  % Early trials (w/ alcohol)
-    [106:107]};     % Late trials (w/ alcohol) #ok<*NBRAK>
+    [10, 20], ...   % Shift trials(wo/ alcohol)
+    [110, 120]};    % Shift trials(w/ alcohol)              %#ok<*NBRAK>
 
 %%
 iter = 0; clear avg*;                                          %#ok<*NBRAK>

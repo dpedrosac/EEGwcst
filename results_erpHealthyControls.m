@@ -16,88 +16,30 @@
 
 %% General settings
 if strcmp(getenv('username'), 'dpedrosa')
-    data_dir = 'D:\skripte\lambda\data\';
+    wdir = 'D:\skripte\lambda\';
+    addpath(genpath(wdir));
 end
+data_dir = fullfile(wdir, 'data\');
+
 subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
-subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];      % ET-Patients (not used here)
-subj = subj1; % [subj1, subj2];
+subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients (not used here)
+all_subj = [subj1, subj2];
+idx_ctrl = find(ismember(all_subj, subj1));
+% idx_et = find(ismember(all_subj, subj2));
+
 metric = {'ERP'};                                                           % two different options available (1) ERP and (2) TFR
 try
-    load(fullfile(data_dir, 'data', 'avgs.mat'))
+    fprintf('\nLoading preprocessed file(s) ...')
+    load(fullfile(data_dir, 'avgs.mat'))
+    load(fullfile(data_dir, 'avg5-8.mat'))
+    fprintf("done!")
 catch
     fprintf('\n Averages not found ar %s, storing data again', data_dir)
-    all_subj = [subj1, subj2];
     estimate_averages(all_subj)
 end
-wdir = 'C:\Users\David\projekte\wcst\';
 
-
+print_legend
 %%
-iter = 0; clear AVG*; avg1 = {}; avg2 = {};
-for dId = 1:numel(subj)
-    fprintf('\nthe subject being processed is: %s \n', strcat('S', num2str(subj(dId))));
-    iter = iter +1;
-    filename = strcat(wdir, 'S', num2str(subj(dId)), '\data_final_S', num2str(subj(dId)), '.mat');
-    clear data_final
-    load(filename);
-    trlsnum = 2:3;
-    cfg = [];
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_early = ft_selectdata(cfg,data_final);
-    
-    trlsnum = 6:7;
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_late = ft_selectdata(cfg,data_final);
-    
-    trlsnum = [10,20];
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_wrong = ft_selectdata(cfg,data_final);
-    
-    trlsnum = [110,120];
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_wrong_alc = ft_selectdata(cfg,data_final);
-    
-    trlsnum = [21:25];
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_right = ft_selectdata(cfg,data_final);
-    
-    trlsnum = [121:125];
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_right_alc = ft_selectdata(cfg,data_final);
-    
-    trlsnum = 102:103;
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_early_alc = ft_selectdata(cfg,data_final);
-    
-    trlsnum = 106:107;
-    cfg.trials = find(ismember(data_final.trialinfo, trlsnum));
-    data_late_alc = ft_selectdata(cfg,data_final);
-    
-    cfg = [];
-    cfg.keeptrials = 'yes';
-    avgEARLY = ft_timelockanalysis(cfg, data_early);
-    avgLATE = ft_timelockanalysis(cfg, data_late);
-    avgEARLYa = ft_timelockanalysis(cfg, data_early_alc);
-    avgLATEa = ft_timelockanalysis(cfg, data_late_alc);
-    avgWRONG = ft_timelockanalysis(cfg, data_wrong);
-    avgRIGHT = ft_timelockanalysis(cfg, data_right);
-    avgWRONGa = ft_timelockanalysis(cfg, data_wrong_alc);
-    avgRIGHTa = ft_timelockanalysis(cfg, data_right_alc);
-    
-    avg1{iter} = avgEARLY;
-    avg2{iter} = avgLATE;
-    avg3{iter} = avgEARLYa;
-    avg4{iter} = avgLATEa;
-    avg5{iter} = avgRIGHT;
-    avg6{iter} = avgWRONG;
-    avg7{iter} = avgRIGHTa;
-    avg8{iter} = avgWRONGa;
-    
-    clear data_early data_late avgEARLY avgLATE;
-end
-%%
-idx_ctrl = find(ismember(subj, subj1));
-idx_et = find(ismember(subj, subj2));
 cond = 2;
 cfg = [];
 % cfg.keepindividual = 'yes';
@@ -536,3 +478,5 @@ stats_ERP = ft_timelockstatistics(cfg, avg_stats_ctrl{:}, avg_stats_et{:});
 
 % look for significant channels in ERP stats
 [chans time] = find(stats_ERP.mask)
+
+
