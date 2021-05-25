@@ -1,4 +1,4 @@
-function stats_and_results
+unction stats_and_results
 
 %% General settings and indices to use later in the analyses
 wdir    = 'C:\Users\David\projekte\';

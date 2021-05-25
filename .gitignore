@@ -20,3 +20,5 @@ octave-workspace
 # Data folders and files containing data
 /data
 *.mat
+*.txt
+

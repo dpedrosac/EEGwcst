@@ -19,7 +19,6 @@ function [p] = permtest(x,y,nperm,method)
 % group there should not be any difference anymore. See the paper for more
 % information.
 %
-%
 % Phipson & Smyth 2010:
 % Permutation P-values Should Never Be Zero:Calculating Exact P-values When
 % Permutations Are Randomly Drawn
@@ -58,16 +57,15 @@ x_p = z(idx(:,1:n1));
 y_p = z(idx(:,n1+1:end));
 permDist = mean(x_p,2) - mean(y_p,2);
 
-
 %Phibson 2010 Permutation P-values should never be zero: calculating exact P - NCBI
 b = sum(abs(permDist)>=abs(testValue));
 p_t = (b+1)/(nperm+1);
-
 
 if strcmp(method, 'conservative')
     p = p_t;
     return
 end
+
 % sometimes with large n1/n2 there is a warning that mt is inaccurate. In
 % this case, the correction doesnt do much anyways.
 warning off
@@ -76,8 +74,6 @@ warning on
 if n1 == n2
     mt = mt/2; % not sure why this is but its in the R-Code
 end
-
-
 
 if strcmp(method,'auto')
     if mt<10000
