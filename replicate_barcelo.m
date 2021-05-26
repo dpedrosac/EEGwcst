@@ -114,7 +114,7 @@ idx_group = {find(ismember(subj, subj1)), find(ismember(subj, subj2))};
 idx_cond = {'avg1_work', 'avg2_work'};
 mcp = 'cluster_ft';
 
-opt = 'alc_group';
+opt = 'early-late';
 switch opt
     case 'group'
         fc = 0;

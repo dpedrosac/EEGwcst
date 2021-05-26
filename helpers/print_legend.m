@@ -25,7 +25,7 @@ fprintf('Legend for all trials used during WCST\n')
 fprintf('======================================\n')
 for k = 1:numel(toi)
    fprintf('%g,', toi{k}{1}(1:end-1))  
-   fprintf('%g\t->\t%s\n', toi{k}{1}(end), toi{k}{2})  
+   fprintf('%g\t->\t%25s\n', toi{k}{1}(end), toi{k}{2})  
 end
 fprintf('\n')
 
