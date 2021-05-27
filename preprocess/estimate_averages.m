@@ -13,8 +13,8 @@ function estimate_averages(all_subj)
 %   warranties whatsoever.
 
 toi = {             % Different trial number available; for further details cf: ./paradigm/WCST-Tremorparadigma.sce
-    [2,3], ...      % Early trials (wo/ alcohol)
-    [6,7], ...      % Late trials (wo/ alcohol)
+    [20,21,22], ... % Early trials (wo/ alcohol), formerly [2,3]
+    [24,25], ...    % Late trials (wo/ alcohol), formerly [6,7]
     [102:103], ...  % Early trials (w/ alcohol)
     [106:107], ...  % Late trials (w/ alcohol) 
     [21:25], ...    % Right trials (wo/ alcohol)

@@ -62,11 +62,14 @@ plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
 %% ET-patients vs control subjects all shift trials
 cfg = []; avg = cell(1,2);
-avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
-avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
+%avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
+%avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
+
+avg{1} = {avg5{idx_group{1}}};
+avg{2} = {avg5{idx_group{2}}};
 
 lgnd = {'CTRL-subjects', 'ET-patients'};
-fignum = 11;
+fignum = 98;
 nCol = 3;
 mcp = 'cluster_ft';
 tit = 'CTRL-subj vs. ET-patients on repeat trials';
@@ -78,6 +81,7 @@ avg{1} = {avg1{idx_group{1}}};
 avg{2} = {avg2{idx_group{1}}}; % CTRL-subjects, late repeats
 avg{3} = {avg1{idx_group{2}}};
 avg{4} = {avg2{idx_group{2}}}; % ET-patients, late repeats
+
 plot_differencesERP(avg)
 
 %% Topolots for the p300 answer for both groups and all shifted trials
@@ -85,6 +89,9 @@ plot_differencesERP(avg)
 cfg = []; avg = cell(1,2);
 avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
 avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
+
+avg{1} = {avg5{idx_group{1}}};
+avg{2} = {avg5{idx_group{2}}};
 
 lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
 fignum = 13;

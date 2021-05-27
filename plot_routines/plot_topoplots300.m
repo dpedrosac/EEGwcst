@@ -7,7 +7,7 @@ function plot_topoplots300(avg, fignum, lgnd, tit)
 % Formulae and general settings
 toi             = [.3 .5];
 bsl             = [-.2 0];
-use_median      = 1;
+use_median      = 0;
 % Start plottint the results:
 figure(fignum); clf;                                                        % creates a figure
 set( gcf, 'Color', 'White', 'Unit', 'Normalized', ...
