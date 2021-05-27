@@ -484,7 +484,7 @@ ft_topoplotER(cfg,avg_all4);
 timepoint=0.2;
 cfg = [];
 cfg.zlim='maxmin';
-cfg.xlim=[timepoint timepoint];
+cfg.xlim=[.25 .55];
 cfg.layout = 'EEG1005';
 
 figure;

@@ -18,19 +18,19 @@ elseif nargin < 8
 elseif nargin < 7
     nCol = 3;
 elseif nargin < 6
-    nCol = 3; bsl = [.25 0];
+    nCol = 3; bsl = [-.2 0];
 elseif nargin < 5
-    nCol = 3; bsl = [.25 0]; toi = [-.2 1];
+    nCol = 3; bsl = [-.2 0]; toi = [-.2 1];
 elseif nargin < 4
-    nCol = 3; bsl = [.25 0]; toi = [-.2 1];
-    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'POz'};
+    nCol = 3; bsl = [-.2 0]; toi = [-.2 1];
+    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'Oz'};
 elseif nargin < 3
-    nCol = 3; bsl = [.25 0]; toi = [-.2 1];
-    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'POz'};
+    nCol = 3; bsl = [-.2 0]; toi = [-.2 1];
+    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'Oz'};
     fignum = 1;
 elseif nargin < 2
-    nCol = 3; bsl = [.25 0]; toi = [-.2 1];
-    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'POz'};
+    nCol = 3; bsl = [-.2 0]; toi = [-.2 1];
+    ch = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'Oz'};
     fignum = 1;
     lgnd = {'condition1', 'condition2'};
 elseif nargin < 1

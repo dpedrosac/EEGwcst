@@ -20,16 +20,13 @@ if strcmp(getenv('username'), 'dpedrosa')
     addpath(genpath(wdir));
     addpath('D:\skripte\fieldtrip'); ft_defaults;
 end
-p               = figure_params_gen;                                        % load general parameters for plots
+p        = figure_params_gen;                                               % load general parameters for plots
 data_dir = fullfile(wdir, 'data\');
 
 subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
 subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients (not used here)
 all_subj = [subj1, subj2];
-idx_ctrl = find(ismember(all_subj, subj1));
-% idx_et = find(ismember(all_subj, subj2));
 
-metric = {'ERP'};                                                           % two different options available (1) ERP and (2) TFR
 try
     fprintf('\nLoading preprocessed file(s) ...')
     load(fullfile(data_dir, 'avgs.mat'))
@@ -50,6 +47,7 @@ ch              = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'POz'};                  % ch
 idx_group       = {find(ismember(all_subj, subj1)), ...
     find(ismember(all_subj, subj2))};
 idx_cond        = {'avg1_work', 'avg2_work'};
+toi = [-.2 1]; bsl = [-.2 0];
 
 %% Early vs late shift trials, CTRL-subjects
 cfg = []; avg = cell(1,2);
@@ -57,7 +55,6 @@ avg{1} = {avg1{idx_group{1}}}; % CTRL-subjects, early repeats
 avg{2} = {avg2{idx_group{1}}}; % CTRL-subjects, late repeats
 lgnd = {'early responses', 'late responses'};
 fignum = 10;
-toi = [-.2 1]; bsl = [-.25 0];
 nCol = 3;
 mcp = 'cluster_ft';
 tit = 'CTRL-subj';
@@ -69,8 +66,7 @@ avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
 avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
 
 lgnd = {'CTRL-subjects', 'ET-patients'};
-fignum = 20;
-toi = [-.2 1]; bsl = [-.25 0];
+fignum = 11;
 nCol = 3;
 mcp = 'cluster_ft';
 tit = 'CTRL-subj vs. ET-patients on repeat trials';
@@ -83,6 +79,55 @@ avg{2} = {avg2{idx_group{1}}}; % CTRL-subjects, late repeats
 avg{3} = {avg1{idx_group{2}}};
 avg{4} = {avg2{idx_group{2}}}; % ET-patients, late repeats
 plot_differencesERP(avg)
+
+%% Topolots for the p300 answer for both groups and all shifted trials
+
+cfg = []; avg = cell(1,2);
+avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
+avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
+
+lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
+fignum = 13;
+mcp = 'cluster_ft';
+tit = 'Topographical distribution of p300 on repeat-trials';
+plot_topoplots300(avg, fignum, lgnd, tit)
+
+%% repeat trials vs. shift, CTRL-subjects
+cfg = []; avg = cell(1,2);
+avg{1} = {avg2{idx_group{1}}}; % CTRL-subjects, repeat trials (late)
+avg{2} = {avg7{idx_group{1}}}; % CTRL-subjects, shift trials
+lgnd = {'repeat trials', 'shift trials'};
+fignum = 20;
+nCol = 3;
+mcp = 'cluster_ft';
+tit = 'CTRL-subj';
+plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
+
+
+%% shift trials, CTRL-subjects vs. ET-patients
+cfg = []; avg = cell(1,2);
+avg{1} = {avg7{idx_group{1}}}; % CTRL-subjects, shift trials
+avg{2} = {avg7{idx_group{2}}}; % ET-subjects, shift trials
+lgnd = {'CTRL-subj', 'ET-patients'};
+fignum = 21;
+nCol = 3;
+mcp = 'cluster_ft';
+tit = 'CTRL-subj vs. ET-patients on shift trials';
+plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
+
+%% Topolots for the p300 answer for both groups and all shifted trials
+
+cfg = []; avg = cell(1,2);
+avg{1} = {avg7{idx_group{1}}};
+avg{2} = {avg7{idx_group{2}}};
+
+lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
+fignum = 22;
+mcp = 'cluster_ft';
+tit = 'Topographical distribution of p300 on shift-trials';
+plot_topoplots300(avg, fignum, lgnd, tit)
+
+
 
 %%
 %%%%%%%

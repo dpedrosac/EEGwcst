@@ -13,8 +13,8 @@ function plot_differencesERP(avg)
 
 ch_sub = {'CPz'};
 tit = sprintf('Differences of p300 at %s between groups', cell2mat(ch_sub));
-bsl = [-.25 0]; toi = [.25 .45];
-fignum = 30;
+bsl = [-.20 0]; toi = [.25 .55];
+fignum = 12;
 lgnd1 = {'CTRL-subjects', 'ET-patients'}; % change this to a sprintf including numel(avg)
 lgnd2 = {'early', 'late'};
 
