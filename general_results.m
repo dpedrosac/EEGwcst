@@ -67,9 +67,15 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 40'))), ...
             1:2, 'Un', 0));
         
+%         err_tbl{g}(k,3:4) = cell2mat(arrayfun(@(x) ...                      % the third and fourth columns provide the efficient error for the WO and the ALC condition
+%             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20'))), ...
+%             1:2, 'Un', 0));
+
         err_tbl{g}(k,3:4) = cell2mat(arrayfun(@(x) ...                      % the third and fourth columns provide the efficient error for the WO and the ALC condition
-            numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20'))), ...
+            numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20') | ...
+            strcmp({errors{x}(idx_all{x}).value}, 'S 10'))), ...
             1:2, 'Un', 0));
+
         
         err_tbl{g}(k,5:6) = cell2mat(arrayfun(@(x) ...                      % the fifth and sixth columns provide the set shift error for the WO and the ALC condition
             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 50') & ...
@@ -128,7 +134,8 @@ p_mem = fx_sig(err_tbl{1}(:,7), err_tbl{2}(srt,7));
 
 idx_pat = {1:npat, 1:npat};                                                 % indices if ET-patinets and CTRL-subjects; because balanced, a 1:numsubj is introduced
 data_raw = arrayfun(@(x) [err_tbl{x}(idx_pat{x},5:8), ...
-    reshape(1:length(data{x}(idx_pat{x})), [length(data{x}(idx_pat{x})),1])], 1:2, 'Un', 0);
+    reshape(1:length(data{x}(idx_pat{x})), ...
+    [length(data{x}(idx_pat{x})),1])], 1:2, 'Un', 0);
 plot_effect_alcohol(data_raw, 99, 2)
 dat_plot{1} = [rt_all{2}(:,1:2), rt_all{1}(:,1:2)];
 dat_plot{2} = [rt_all{2}(:,3:4), rt_all{1}(:,3:4)];
