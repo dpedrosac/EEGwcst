@@ -11,10 +11,10 @@ function plot_differencesERP(avg)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
-ch_sub = {'CPz'};
+ch_sub = {'Fz'};
 tit = sprintf('Differences of p300 at %s between groups', cell2mat(ch_sub));
-bsl = [-.20 0]; toi = [.25 .55];
-fignum = 12;
+bsl = [-.15 0]; toi = [.25 .55];
+fignum = 13;
 lgnd1 = {'CTRL-subjects', 'ET-patients'}; % change this to a sprintf including numel(avg)
 lgnd2 = {'early', 'late'};
 
@@ -39,6 +39,7 @@ set( gcf, 'Color', 'White', 'Unit', 'Normalized', ...
 boxplot(dat_all, 'Positions', positions)
 set(gca,'xtick',[mean(positions(1:2)) mean(positions(3:4)) ])
 set(gca,'xticklabel',lgnd1) % Groups on left and right side
+set(gca, 'XLim', [.8 1.7])
 hOutliers = findobj(gca,'Tag','Outliers');
 delete(hOutliers)
 
@@ -47,11 +48,12 @@ for j=1:numel(h)
     if mod(j,2)~=0; opt = [3, .2]; else; opt = [2, .7]; end
     patch(get(h(j),'XData'), get(h(j),'YData'), p.greys{opt(1)}, ...
         'LineWidth', linewidth_boxplot, 'FaceAlpha',opt(2), ...
-        'EdgeColor', 'none');
+        'EdgeColor', p.greys{3});
 end
 
 h = findobj(gca,'tag','Median');
 set(h,'Color',p.greys{3}, 'LineWidth', 2.5);
+for k=1:4; set(h(k), 'XData', get(h(k), 'XData').*[.995 1.005]); end
 
 h = findobj(gca, 'Tag', 'Upper Whisker');
 set(h, 'Color', p.greys{3}, ...
@@ -75,7 +77,8 @@ ywhisker_high = fliplr(ywhisker_high);
 
 h = findobj(gca, 'Tag', 'Lower Adjacent Value');
 for j = 1:numel(h)
-    set(h(j), 'Color', p.colors{3}, 'LineWidth', linewidth_boxplot, 'Linestyle', '-', 'MarkerSize', 1.5);
+    set(h(j), 'Color', p.greys{3}, 'LineWidth', linewidth_boxplot, ...
+        'Linestyle', '-', 'MarkerSize', 1.5);
     xdata = mean(get(h(j),'XData'));
     ywhisker_low_temp = get(h(j),'YData');
     ywhisker_low(j) = ywhisker_low_temp(1); %#ok<*AGROW>
@@ -91,9 +94,9 @@ if scatter_plot == 1
     for j = 1:numel(avg)
         clear ind
         sizemin_scatter = 10; sizemax_scatter = 20;
-        scatter_color = p.colors{3};
+        scatter_color = p.colors{4};
         if j <3 
-            scatter_color = p.colors{4}; 
+            scatter_color = p.colors{3}; 
         end
         upper_outlier = ywhisker_high(j);%prctile(all_data(:,index{group}(j)), 75) + 1.5*(prctile(all_data(:,index{group}(j)), 75) - prctile(all_data(:,index{group}(j)), 25));
         lower_outlier = ywhisker_low(j);%prctile(all_data(:,index{group}(j)), 25) - 1.5*(prctile(all_data(:,index{group}(j)), 75) - prctile(all_data(:,index{group}(j)), 25));
@@ -128,14 +131,14 @@ offset = 1.05;
 for c =1:numel(combs)
     dat_stat1 = dat_all(:,combs{c}(1));
     dat_stat2 = dat_all(:,combs{c}(2));
-    [~,ps] = ranksum(dat_stat1, dat_stat2);
-    if ps < .01
+    [ps,~] = ranksum(dat_stat1, dat_stat2);
+    if ps < .05
         x1 = positions(combs{c}(1)) + .01;
         x2 = positions(combs{c}(2)) - .01;
         plot([x1 x2], [max(ywhisker_high)*offset max(ywhisker_high)*offset], ...
             'Color', [84 84 84]./255)
         txt1 = '*';
-        h = text(mean(positions(combs{c})),max(ywhisker_high)*offset*1.1,txt1);
+        h = text(mean(positions(combs{c})),max(ywhisker_high)*offset*1.05,txt1);
         set(h, 'FontName', p.ftname, 'FontSize', p.ftsize(3));
         offset = offset*1.1;
     end

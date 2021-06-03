@@ -44,23 +44,26 @@ if numel(avg)~=2
 end
 
 % Formulae used throughout script
-fx_bslsub       = @(x,y,z) bsxfun(@minus, x(y,:), nanmean(x(y,z(1):z(2))));
+% fx_bslsub_all   = ...
+%     @(x,z) bsxfun(@minus, x, nanmean(nanmean(x(:,z(1):z(2)),1)));
 fx_bslsub_all   = ...
-    @(x,z) bsxfun(@minus, x, nanmean(nanmean(x(:,z(1):z(2)),1)));
+    @(x,z) bsxfun(@minus, x, nanmean(x(:,z(1):z(2)),2));
 fac             = 1;                                                        % factor to create SEM for plots
 fx_plots = {@(x) fac*nanmean(x), ...
     @(x) fac*(nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
     @(x) fac*(nanmean(x) + 1.96*nanstd(x)./sqrt(size(x,1)))};
 p = figure_params_gen;
 
-% Create metainfo needed to plot results
+% Get TOI, BSL and a time vector
+toi = dsearchn(avg{1}{1}.time', toi');                                      % time of interest for ERP estimation
+time_vector = avg{1}{1}.time(toi(1):toi(2));                                % create a time_vector to make things easier
+bsl = dsearchn(avg{1}{1}.time', bsl');                                      % indices for baseline period
+
+% Metainfo for subplots
 nRow = ceil( numel(ch) / nCol ) ;
 rowH = 0.7 / nRow ;  colW = 0.65 / nCol ;
 colX = 0.06 + linspace( 0, 0.96, nCol+1 ) ;  colX = colX(1:end-1) ;
 rowY = 0.1 + linspace( 0.9, 0, nRow+1 ) ;  rowY = rowY(2:end) ;
-toi = dsearchn(avg{1}{1}.time', toi');                                      % time of interest for ERP estimation
-time_vector = avg{1}{1}.time(toi(1):toi(2));                                       % create a time_vector to make things easier
-bsl = dsearchn(avg{1}{1}.time', bsl');                                      % indices for baseline period
 
 % Start plotting results
 figure(fignum); clf;                                                        % creates a figure
@@ -74,8 +77,32 @@ for dId = 1:numel(ch) % loop through the channels of interest
     dat_all = cell(1,2);                                                    % pre-allocate space
     
     for g = 1:2 % loop through both conditions (avg{1}/{2}) cf. lgnd;
-        data_temp = arrayfun(@(x) squeeze(avg{g}{x}.trial(:,chtemp,:)), ...
+%         data_temp = arrayfun(@(x) squeeze(avg{g}{x}.trial(:,chtemp,:)), ...
+%             1:numel(avg{g}), 'Un', 0);                         %#ok<FNDSB>  % extract channel of interest
+        data_temp = arrayfun(@(x) avg{g}{x}.avg(:,chtemp,:), ...
             1:numel(avg{g}), 'Un', 0);                         %#ok<FNDSB>  % extract channel of interest
+        
+%         cfg = [];
+%         cfg.latency = test.time(dsearchn(test.time.', [-.2 1].'));
+%         test_temp = ft_selectdata(cfg, test) 
+%         
+%         cfg = [];
+%         cfg.continuous = 'no';
+%         cfg.artfctdef.threshold.channel = 'eeg';
+%         %cfg.artfctdef.threshold.channel     = 'all';
+%         cfg.artfctdef.threshold.max = 7.5; %value in uV or T, default  inf
+%         cfg.artfctdef.threshold.min = -7.5; %value in uV or T, default -inf
+%         cfg.artfctdef.threshold.interactive = 'yes';
+%         cfg.artfctdef.threshold.bpfilter  = 'yes';
+%         cfg.artfctdef.threshold.bpfreq  = [.3 30];
+%         cfg.artfctdef.threshold.bpfiltord  = 2;
+%         [conf, artData] = ft_artifact_threshold(cfg, test_temp);
+% 
+%         cfg = [];
+%         cfg.artfctdef.xxx.artifact = artData;
+%         cfg.artfctdef.reject = 'partial';
+%         fnData = ft_rejectartifact(cfg, test);
+
         dat_all{g} = cat(1, data_temp{:});
         dat_all{g} = fx_bslsub_all(dat_all{g}, bsl); clear data_temp % subtract baseline from all trials
         
@@ -99,38 +126,10 @@ for dId = 1:numel(ch) % loop through the channels of interest
         % Start with statistics toi compare conditions
         if g == 2
             [h, mask, ps] = typeI_correction(dat_all, toi, mcp);
-
-            switch mcp
-                case 'none_old'                                                 % simple t-test no multiple comparison correction
-                    [h,ps] = ttest2(dat_all{1}(:,toi(1):toi(2)), ...
-                        dat_all{2}(:,toi(1):toi(2)), 'Alpha', .01);
-                case 'cluster_ft_old'
-                    cfg = [];
-                    cfg.method = 'montecarlo';
-                    cfg.correctm = 'cluster';
-                    cfg.neighbours = [];
-                    cfg.numrandomization = 1000;
-                    cfg.statistic = 'indepsamplesT';
-                    cfg.clusterthreshold = 'nonparametric_individual';
-                    cfg.alpha = .05;
-                    cfg.clusteralpha = .05;
-                    cfg.correcttail = 'alpha';
-                    cfg.clusterstatistic = 'maxsum';
-                    cfg.parameter = 'trial';
-                    cfg.ivar = 1;
-                    cfg.design = [ones(1,size(dat_all{1},1)), 2*ones(1,size(dat_all{2},1))];
-                    cfg.dimord = 'chan_time';
-                    cfg.dim = [1 size(dat_all{1}(:,toi(1):toi(2)),2)];
-                    cfg.neighbours = [];
-                    cfg.connectivity = 0;
-                    mask{dId} = ft_statistics_montecarlo(cfg, ...
-                        [dat_all{1}(:,toi(1):toi(2)).', ...
-                        dat_all{2}(:,toi(1):toi(2)).'], cfg.design);
-                    h = mask{dId}.mask.';
-            end
             
             % Highlight significant differences (if present=
             if ~isempty(h) && any(h==1)
+                if h(1) == 1; h = [0, h(1:end-1)]; end                      % avoids error when there is a big difference at beginning
                 idx_h1 = find(diff(h) == 1);
                 idx_h2 = find(diff(h) == -1);
                 if size(idx_h2,2) < size(idx_h1,2) && ~isempty(idx_h2)

@@ -1,7 +1,10 @@
 function rtimes_all(subj, subj1, subj2, wdir)
 
 % This function
-
+wdir = fullfile(pwd, 'data', 'header_and_events'); 
+subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
+subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients (not used here)
+subj = [subj1, subj2]
 
 %%
 % general settings
@@ -13,7 +16,7 @@ for g = 1:2 % loop through both groups
     if g == 1; sjts = subj1; else; sjts = subj2; end
     for s = 1:numel(sjts) % loop through subjects
         for c = 1:numel(conds) % loop through the available conditions
-            filename = fullfile(wdir, 'wcst', strcat('S', num2str(sjts(s))), ...
+            filename = fullfile(wdir, ...
                 strcat('events_', conds{c}, '_', strcat('S', num2str(sjts(s))), '.mat'));
             load(filename);                                                 % load data for individual subject
             for k = 1:7 % repetitions within a block

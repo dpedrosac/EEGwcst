@@ -1,12 +1,11 @@
-function plot_topoplots300(avg, fignum, lgnd, tit)
+function plot_topoplots(avg, fignum, lgnd, tit, toi)
 
 
 
 %% topoplots
 
 % Formulae and general settings
-toi             = [.3 .5];
-bsl             = [-.2 0];
+bsl             = [-.1 0];
 use_median      = 0;
 % Start plottint the results:
 figure(fignum); clf;                                                        % creates a figure
@@ -69,7 +68,7 @@ load([pwd, '\neighbours.mat'])
 cfg = [];
 cfg.channel     = 'EEG';
 cfg.neighbours  = neighbours; % defined as above
-cfg.latency     = [0.2 0.55];
+cfg.latency     = toi;
 cfg.avgovertime = 'yes';
 cfg.parameter   = 'avg';
 cfg.method      = 'montecarlo';
@@ -81,11 +80,11 @@ cfg.numrandomization = 5000;
 cfg.clusterstatistic = 'maxsum';
 cfg.minnbchan        = 2;
 
-Nsub = 16;
-cfg.design(1,1:4*Nsub)  = [1:Nsub 1:Nsub Nsub+1:Nsub*2 Nsub+1:Nsub*2];
-cfg.design(2,1:4*Nsub)  = [ones(1,Nsub*2) 2*ones(1,Nsub*2)];
-cfg.ivar                = 2; % the 1st row in cfg.design contains the independent variable
-%cfg.uvar                = 2; % the 2nd row in cfg.design contains the subject number
+Nsub = numel(avg{1});
+% cfg.design(1,1:2*Nsub)  = [1:Nsub 1:Nsub];
+cfg.design(1,1:2*Nsub)  = [ones(1,Nsub) 2*ones(1,Nsub)];
+cfg.ivar                = 1; % the 1st row in cfg.design contains the independent variable
+%cfg.uvar                = 1; % the 2nd row in cfg.design contains the subject number
 
 stat = ft_timelockstatistics(cfg, avg{1}{:}, avg{2}{:});
 
