@@ -77,7 +77,7 @@ end
 isString            = cellfun('isclass', {events(:).value}, 'char');
 isBUA(isString)     = ~cellfun(@isempty, regexp(reshape({events(isString).value}, numel({events(isString).value}),1),'BUA'));
 [~, idx_tot] = find(isString == 1 & isBUA ==0);
-ev_unique = unique(cellstr({events(idx_tot).value}))
+ev_unique = unique(cellstr({events(idx_tot).value}));
 
 datall = cat(2,events_all{2}{:});
 counts_ev =  arrayfun(@(x) strcmp(ev_unique{x}, {datall.value}), 1:numel(ev_unique), 'Un', 0);

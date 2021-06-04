@@ -1,4 +1,4 @@
-function rt_all = rt_gen(code, steps)
+function rt_all = rt_gen(code, steps, wdir)
 
 %% !!!!This function has been replaced and is not used anymore!!! see als general_results.m
 
@@ -22,14 +22,14 @@ function rt_all = rt_gen(code, steps)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
-
-load_dir = strcat('C:\Users\David\projekte\wcst\', code, '\');
+events = cell(2,1);
+load_dir = fullfile(wdir, 'data', 'header_and_events');
 cond = {'WO', 'ALC'};
 fx_tp = @(x) x.';                                                           % formula to transpose a vector
 warning('off','MATLAB:strrep:InvalidInputType');                            % gets rid of the warning concerning the strrep function
 
 for c = 1:2 % loops through the two different conditions
-    load(strcat(load_dir, 'events_', cond{c}, '_', code, '.mat'))   % loads the data
+    load(fullfile(load_dir, strcat('events_', cond{c}, '_', upper(code), '.mat')))   % loads the data
     switch steps
         case 'rt_all' % all events
             idx_all = find(strcmp({events(:).value}, 'S  1') | ...          % finds the indices of the trial number; the event after
@@ -67,7 +67,7 @@ for c = 1:2 % loops through the two different conditions
         case 'error' % estimates the total time for the repetition trials
             indices = {'S10', 'S20', 'S40', 'S50'};
             idx = []; clear idx_temp;
-            for k = 1:4 % loops through the different errors
+            for k = 1:numel(indices) % loops through the different errors
                 idx_temp =  find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
                     {events(:).value}, 'Uniform', 0), indices{k}));
                 idx = [idx; fx_tp(idx_temp)];                                   % add the index list to the available indices

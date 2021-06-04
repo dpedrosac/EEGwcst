@@ -52,68 +52,72 @@ print_legend
 %% start with analyses
 % General settings for plotting and analyses
 rows            = 2;
-ch              = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz', 'POz'};                  % channels of interest
-% sb              = reshape(1:numel(ch), [rows, ceil(numel(ch)/rows)]);     % is that used at all? 
-% indiv           = 0;
+ch              = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz'};                  % channels of interest
 idx_group       = {find(ismember(all_subj, subj1)), ...
     find(ismember(all_subj, subj2))};
 idx_cond        = {'avg1_work', 'avg2_work'};
-toi = [-.2 1]; bsl = [-.2 0];
+toi = [-.15 1]; bsl = [-.15 0];
 
 %% Early vs late shift trials, CTRL-subjects
-cfg = []; avg = cell(1,2);
-avg{1} = {avg1{idx_group{1}}}; % CTRL-subjects, early repeats
-avg{2} = {avg2{idx_group{1}}}; % CTRL-subjects, late repeats
-lgnd = {'early responses', 'late responses'};
-fignum = 10;
-nCol = 3;
-mcp = 'cluster_ft';
-tit = 'CTRL-subj';
-plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
-
-%% ET-patients vs control subjects all shift trials
-cfg = []; avg = cell(1,2);
-%avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
-%avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
-
-avg{1} = {avg5{idx_group{1}}};
-avg{2} = {avg5{idx_group{2}}};
+% cfg = []; avg = cell(1,2);
+% avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:22});
+% avg{2} = subselect_trials({avg5{idx_group{1}}}, {25});
+% 
+% lgnd = {'early responses', 'late responses'};
+% fignum = 10;
+% nCol = 3;
+% mcp = 'cluster_ft';
+% tit = 'CTRL-subj';
+% plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
+% ======= Not really informative, so ditched
+%% ET-patients vs control subjects (all) memory trials
+avg = cell(1,2);
+avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:25});
+avg{2} = subselect_trials({avg5{idx_group{2}}}, {21:25});
 
 lgnd = {'CTRL-subjects', 'ET-patients'};
-fignum = 98;
+fignum = 11;
 nCol = 3;
 mcp = 'cluster_ft';
 tit = 'CTRL-subj vs. ET-patients on repeat trials';
 plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
-%% ET-patients vs control subjects all shift trials
-cfg = []; avg = cell(1,4);
-avg{1} = {avg1{idx_group{1}}};
-avg{2} = {avg2{idx_group{1}}}; % CTRL-subjects, late repeats
-avg{3} = {avg1{idx_group{2}}};
-avg{4} = {avg2{idx_group{2}}}; % ET-patients, late repeats
+%% Early vs late memory trials, ET-patients
+avg = cell(1,2);
+avg{1} = subselect_trials({avg5{idx_group{2}}}, {21:23});
+avg{2} = subselect_trials({avg5{idx_group{2}}}, {24:25});
 
+lgnd = {'early responses', 'late responses'};
+fignum = 12;
+nCol = 3;
+mcp = 'cluster_ft';
+tit = 'ET-subj';
+plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
+
+%% ET-patients vs control subjects all shift trials
+avg = cell(1,4);
+% fignum = 13; % appears in function plot_differencesERP.m
+avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:23});
+avg{2} = subselect_trials({avg5{idx_group{1}}}, {24:25});
+avg{3} = subselect_trials({avg5{idx_group{2}}}, {21:23});
+avg{4} = subselect_trials({avg5{idx_group{2}}}, {24:25});
 plot_differencesERP(avg)
 
-%% Topolots for the p300 answer for both groups and all shifted trials
-
-cfg = []; avg = cell(1,2);
-avg{1} = {avg1{idx_group{1}}, avg2{idx_group{1}}};
-avg{2} = {avg1{idx_group{2}}, avg2{idx_group{2}}};
-
-avg{1} = {avg5{idx_group{1}}};
-avg{2} = {avg5{idx_group{2}}};
-
-lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
-fignum = 13;
-mcp = 'cluster_ft';
-tit = 'Topographical distribution of p300 on repeat-trials';
-plot_topoplots300(avg, fignum, lgnd, tit)
+%% Topolots for the p300 answer for both groups and all repeated trials
+% avg = cell(1,2);
+% avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:25});
+% avg{2} = subselect_trials({avg5{idx_group{2}}}, {21:25});
+% 
+% lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
+% fignum = 14;
+% tit = 'Topographical distribution of p300 on repeat-trials';
+% plot_topoplots(avg, fignum, lgnd, tit, [.45 .75])
+% ======= Not really informative, so ditched
 
 %% repeat trials vs. shift, CTRL-subjects
-cfg = []; avg = cell(1,2);
-avg{1} = {avg2{idx_group{1}}}; % CTRL-subjects, repeat trials (late)
-avg{2} = {avg7{idx_group{1}}}; % CTRL-subjects, shift trials
+avg = cell(1,2);
+avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:25});
+avg{2} = subselect_trials({avg6{idx_group{1}}}, {1:100}); %{avg7{idx_group{2}}}; % CTRL-subjects, shift trials
 lgnd = {'repeat trials', 'shift trials'};
 fignum = 20;
 nCol = 3;
@@ -121,11 +125,10 @@ mcp = 'cluster_ft';
 tit = 'CTRL-subj';
 plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
-
 %% shift trials, CTRL-subjects vs. ET-patients
 cfg = []; avg = cell(1,2);
-avg{1} = {avg7{idx_group{1}}}; % CTRL-subjects, shift trials
-avg{2} = {avg7{idx_group{2}}}; % ET-subjects, shift trials
+avg{1} = subselect_trials({avg6{idx_group{1}}}, {1:100});
+avg{2} = subselect_trials({avg6{idx_group{2}}}, {1:100});
 lgnd = {'CTRL-subj', 'ET-patients'};
 fignum = 21;
 nCol = 3;
@@ -133,19 +136,49 @@ mcp = 'cluster_ft';
 tit = 'CTRL-subj vs. ET-patients on shift trials';
 plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
-%% Topolots for the p300 answer for both groups and all shifted trials
-
+%% repeat trials vs. shift, ET-patients
 cfg = []; avg = cell(1,2);
-avg{1} = {avg7{idx_group{1}}};
-avg{2} = {avg7{idx_group{2}}};
+avg{1} = subselect_trials({avg5{idx_group{2}}}, {21:25});
+avg{2} = subselect_trials({avg6{idx_group{2}}}, {1:100}); %{avg7{idx_group{2}}}; % CTRL-subjects, shift trials
+lgnd = {'repeat trials', 'shift trials'};
+fignum = 22;
+nCol = 3;
+mcp = 'cluster_ft';
+tit = 'ET-patients';
+plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
+
+%% Topolots for the p300 answer for both groups and all shifted trials
+avg = cell(1,2);
+avg{1} = subselect_trials({avg6{idx_group{1}}}, {1:100});
+avg{2} = subselect_trials({avg6{idx_group{2}}}, {1:100}); %{avg7{idx_group{2}}}; % CTRL-subjects, shift trials
 
 lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
-fignum = 22;
+fignum = 23;
+tit = 'Topographical distribution of late p300 on shift-trials';
+plot_topoplots(avg, fignum, lgnd, tit, [.6 .8])
+
+%% shift trials, ET-patients wo/alcohol vs. alcohol
+avg = cell(1,2);
+avg{1} = subselect_trials({avg6{idx_group{2}}}, {1:200});
+avg{2} = subselect_trials({avg8{idx_group{2}}}, {1:200}); %{avg7{idx_group{2}}}; % CTRL-subjects, shift trials
+lgnd = {'no alcohol', 'w/ alcohol'};
+fignum = 80;
+nCol = 3;
 mcp = 'cluster_ft';
-tit = 'Topographical distribution of p300 on shift-trials';
-plot_topoplots300(avg, fignum, lgnd, tit)
+tit = 'ET-patients (shift trials)';
+plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
 
+%% Topolots for late p300 answer for ET-patients (shifted trials) w/ and wo/ alcohol 
+
+cfg = []; avg = cell(1,2);
+avg{1} = subselect_trials({avg6{idx_group{2}}}, {1:200});
+avg{2} = subselect_trials({avg8{idx_group{2}}}, {1:200}); %{avg7{idx_group{2}}}; % CTRL-subjects, shift trials
+lgnd = {'no alcohol', 'w/ alcohol', 'Group difference'};
+fignum = 82;
+mcp = 'cluster_ft';
+tit = 'Topographical distribution of late p300 on shift-trials (w/ alcohol and without)';
+plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 
 %%
 %%%%%%%

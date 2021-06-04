@@ -14,49 +14,50 @@ function general_results(control, patient, npat, subj1, subj2, wdir)
 
 if nansum(~cellfun(@isempty, {control(:).matching})) ~= npat || ...         % if the number of matched pairs in the metadata, does not correspond to the number of
         nansum(~cellfun(@isempty, {control(:).matching})) ~= npat           % subjects that should be included, a script is run in which the matching is performed again
-    save_dir = 'C:\Users\David\projekte\wcst';
+    save_dir = fullfile('wdir', 'data');
     matching(control, patient, save_dir)
-    load(strcat(save_dir, '\patdat.mat'))
+    load(strcat(save_dir, '\patdat.mat')) %#ok<*LOAD>
 end
 
-cd(fullfile(wdir, 'wcst', 'results'))
-
+cd(fullfile(wdir, 'data'))
 idx = {find(strncmp({patient(:).matching}, 's', 1)), ...
     find(strncmp({control(:).matching}, 's', 1))};                          % indices of patients to which there was a matching (n = 19 * 2, in total)
 fx_print = @(x) sprintf('%.1f', x); fx_print2 = @(x) sprintf(' %.1f', x);   % formula needed to get the data into the right format
 
 for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
-    if g == 1; dattemp = patient(idx{g}); else dattemp = control(idx{g}); end % in order to make the code more efficient, a temporal data structure is defined
+    if g == 1; dattmp = patient(idx{g}); else dattmp = control(idx{g}); end% in order to make the code more efficient, a temporal data structure is defined
     
-    age{g} = strcat(fx_print(nanmean([dattemp(:).age])), ' ±',  ...         % summarises age
-        fx_print2(nanstd([dattemp(:).age])));
-    gndr{g} = strcat(num2str(sum(deal([dattemp(:).gender]))), ':', ...      % summarises gender
-        num2str([numel(dattemp) - sum(deal([dattemp(:).gender]))]));
-    dd{g} = strcat(fx_print(nanmean([dattemp(:).dd])), ' ±',  ...           % summarises diseas_duration
-        fx_print2(nanstd([dattemp(:).dd])));
+    age{g} = strcat(fx_print(nanmean([dattmp(:).age])), ' ±',  ...         % summarises age
+        fx_print2(nanstd([dattmp(:).age])));
+    gndr{g} = strcat(num2str(sum(deal([dattmp(:).gender]))), ':', ...      % sumfx_printmarises gender
+        num2str([numel(dattmp) - sum(deal([dattmp(:).gender]))]));
+    dd{g} = strcat(fx_print(nanmean([dattmp(:).dd])), ' ±',  ...           % summarises diseas_duration
+        fx_print2(nanstd([dattmp(:).dd])));
     for d = 1:numel(dd)                                                     % the next few lines replace the nan's in the control subjects' data with a term for the table 'n.a.'
-        if any(ismember(dd{d}, 'NaN'))
-            dd{d} = 'n.a.';
-        end
+        if any(ismember(dd{d}, 'NaN')); dd{d} = 'n.a.'; end
     end
     
-    rt_all = rtimes_errors(subj1, subj2, wdir);                             % uses a different script to extract the response times for the differentv trials;
-                                                                            % rt_all thereby consists og two cells (groups - ET(1) vs. CTRL 2) with four columns (shiftwo, shiftalc, restwo, restalc)
+    rt_all = rtimes_trials(subj1, subj2, wdir);                             % uses a different script to extract the response times for the differentv trials;
+    % rt_all consists of two cells (CTRL{1} vs. ET{2}) with four columns:
+    %   - shift-wo reaction times
+    %   - shift-alc reaction times
+    %   - memory-wo reaction time
+    %   - memory-alc reaction time
+    
     errors{1} = {}; errors{2} = {};                                         % pre-allocates space for the error estimation    
     fprintf('estimating response times for group %s \n', num2str(g));
-    p = progressbar( numel(dattemp), 'percent' );                            % JSB routine for progress bars
-    for k = 1:numel(dattemp) % loop through patients, to get the individual values
+    p = progressbar( numel(dattmp), 'percent' );                            % JSB routine for progress bars
+    for k = 1:numel(dattmp) % loop through patients, to get the individual values
         p.update( k )
-        err_temp = rt_gen(dattemp(k).code, 'error');                        % obtains the error counts from the events-files
+        err_temp = rt_gen(dattmp(k).code, 'error', wdir);                        % obtains the error counts from the events-files
         errors = arrayfun(@(x) [errors{x}; err_temp{x}], 1:2, 'Un', 0);     % concatenates the errors for every group in a matrix
     end
     p.stop();
     
     errors = arrayfun(@(x) cat(2,errors{x}{:}), 1:2, 'Un', 0);              % concatenates all errors from both groups to one structure
-    
     parti = unique({errors{1}(:).code}, 'stable');                          % creates a list of all available participants
-    err_tbl{g} = [];                                           %#ok<*AGROW> % pre-allocates space for
     
+    err_tbl{g} = [];                                           %#ok<*AGROW> % pre-allocates space for
     for k = 1:numel(parti) % loop through all participants
         idx_subj = parti{k};
         idx_all = arrayfun(@(x) find(strcmp({errors{x}(:).code}, idx_subj)), ...
@@ -66,9 +67,15 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 40'))), ...
             1:2, 'Un', 0));
         
+%         err_tbl{g}(k,3:4) = cell2mat(arrayfun(@(x) ...                      % the third and fourth columns provide the efficient error for the WO and the ALC condition
+%             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20'))), ...
+%             1:2, 'Un', 0));
+
         err_tbl{g}(k,3:4) = cell2mat(arrayfun(@(x) ...                      % the third and fourth columns provide the efficient error for the WO and the ALC condition
-            numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20'))), ...
+            numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 20') | ...
+            strcmp({errors{x}(idx_all{x}).value}, 'S 10'))), ...
             1:2, 'Un', 0));
+
         
         err_tbl{g}(k,5:6) = cell2mat(arrayfun(@(x) ...                      % the fifth and sixth columns provide the set shift error for the WO and the ALC condition
             numel(find(strcmp({errors{x}(idx_all{x}).value}, 'S 50') & ...
@@ -102,14 +109,14 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
         fx_print2(nanstd(err_tbl{g}(:,7))));
     mem2{g} = strcat(fx_print(nanmean(err_tbl{g}(:,8))), ' ±',  ...          % "memory errors" (alc/ condition)
         fx_print2(nanstd(err_tbl{g}(:,8))));
-    data{g} = dattemp;                                                       % needed for statistical analyses
+    data{g} = dattmp;                                                       % needed for statistical analyses
 end
 
 %% Estimate the significance levels using non-parametric tests
 p_gndr = '-';
 p_dd = '-';
 
-test = 'paired';
+test = 'unpaired';
 switch test % switch to change between paired and unpaired t-tests
     case 'unpaired'
         fx_sig = @(x,y) ranksum(x,y); % Wilcoxon Rank sum test for unpaired samples
@@ -127,7 +134,8 @@ p_mem = fx_sig(err_tbl{1}(:,7), err_tbl{2}(srt,7));
 
 idx_pat = {1:npat, 1:npat};                                                 % indices if ET-patinets and CTRL-subjects; because balanced, a 1:numsubj is introduced
 data_raw = arrayfun(@(x) [err_tbl{x}(idx_pat{x},5:8), ...
-    reshape(1:length(data{x}(idx_pat{x})), [length(data{x}(idx_pat{x})),1])], 1:2, 'Un', 0);
+    reshape(1:length(data{x}(idx_pat{x})), ...
+    [length(data{x}(idx_pat{x})),1])], 1:2, 'Un', 0);
 plot_effect_alcohol(data_raw, 99, 2)
 dat_plot{1} = [rt_all{2}(:,1:2), rt_all{1}(:,1:2)];
 dat_plot{2} = [rt_all{2}(:,3:4), rt_all{1}(:,3:4)];
