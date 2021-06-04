@@ -18,10 +18,19 @@
 if strcmp(getenv('username'), 'dpedrosa')
     wdir = 'D:\skripte\lambda\';
     addpath(genpath(wdir));
-    addpath('D:\skripte\fieldtrip'); ft_defaults;
+    addpath('D:\skripte\fieldtrip');
+    data_dir = fullfile(wdir, 'data');
 end
-p        = figure_params_gen;                                               % load general parameters for plots
-data_dir = fullfile(wdir, 'data\');
+if strcmp(getenv('USER'), 'urs')
+    addpath('/opt/fieldtrip/fieldtrip-20210507');
+    projrootdir = '/home/urs/sync/projects/wcst_eeg';
+    wdir = [projrootdir, '/analysis'];
+    addpath(genpath(wdir));
+    data_dir = fullfile(projrootdir, '/data');
+end
+
+ft_defaults;                                                                % load fieldtrip defaults
+p = figure_params_gen;                                                      % load general parameters for plots
 
 subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
 subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients (not used here)
@@ -34,8 +43,10 @@ try
     fprintf("done!\n")
 catch
     fprintf('\n Averages not found ar %s, storing data again', data_dir)
-    estimate_averages(all_subj)
+    estimate_averages(all_subj, data_dir)
 end
+
+load(fullfile(data_dir, 'avgs.mat'));
 
 print_legend
 %% start with analyses
