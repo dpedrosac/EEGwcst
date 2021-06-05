@@ -119,7 +119,8 @@ switch test_anova
         num_v = 4;                                                          % number of different variables per subject, that is (1) pers_err_wo, (2) pers_err_alc, (3) mem_err_wo and (4) mem_err_wo
         dat_all = [data_raw{1}; data_raw{2}];                               % concatenates data to one matrix
         limit = length(data_raw{1});                                        % number of subjects per group
-        Xs = nan(length(dat_all)*num_v,5);                                  % pre-allocates space for computations later
+        Xs = nan(length(dat_all)*num_v,6);                                  % pre-allocates space for computations later
+        subj = [subj1,subj2];
         
         iter = 0;
         for n = 1:num_v:length(Xs) % loops through all data
@@ -133,37 +134,48 @@ switch test_anova
             Xs(n:n+num_v-1,3) = [1;1;2;2];
             Xs(n:n+num_v-1,4) = [1;2;1;2];
             Xs(n:n+num_v-1,5) = ones(num_v,1)*iter;%dat_all(iter,5);
+            Xs(n:n+num_v-1,6) = ones(num_v,1)*subj(iter);%dat_all(iter,5);
         end
-        
-        tble = table( Xs(:,1), Xs(:,2), Xs(:,3), Xs(:,4),Xs(:,5), ...
-            'VariableNames', {'error_count', 'group', 'error_type', 'condition', 'subj'} );
+
+        % Create table and adjust variable names and order
+        tble = table( Xs(:,1), Xs(:,2), Xs(:,3), Xs(:,4),Xs(:,5),Xs(:,6), ...
+            'VariableNames', ...
+            {'error_count', 'group', 'error_type', 'condition', 'subj', 'ID'} );
+        tble.error_type = categorical(tble.error_type, 1:2, ...
+            {'memory' 'perseveration'});
+        tble.group= categorical(tble.group, 1:2, ...
+            {'CTRL_subj' 'ET_pat'});
+        tble.condition = categorical(tble.condition, 1:2, ...
+            {'woAlc' 'Alc'});
+        tble =  [tble(:,end), tble(:,end-1), tble(:,1:4)];
         writetable(tble, 'anova_data.txt', 'Delimiter', '\t');
 end
 anova_script(Xs,.05);                                                       % for comparison with R script, the matlab anova sctipt is introduced here
 
-%% Run split-plot ANOVA to test for differences between groups and within subjects foro different conditions
-% Create the ANOVA table from the available variables
-fx_tf = @(x) (x);
-
-ID = nan(npat*2,1); iter = 0;
-for g = 1:2 % loop through both groups
-    for k = 1:length(data{g})
-        iter = iter + 1;
-        idx_tmp = regexp(data{g}(k).code, 's', 'split');
-        
-        ID(iter,1) = str2num(idx_tmp{2}); clear idx_tmp
-    end
-end
-
-subj = [1:length(ID)].';
-group = [ones(length(data{1}),1);ones(length(data{2}),1)*2];
-memserr_wo = fx_tf([err_tbl{1}(:,7); err_tbl{2}(:,7)]);                     % memory errors (WO)
-memserr_alc = fx_tf([err_tbl{1}(:,8); err_tbl{2}(:,8)]);                    % memory errors (ALC)
-sserr_wo = fx_tf([err_tbl{1}(:,5); err_tbl{2}(:,5)]);                       % set-shift error (WO)
-sserr_alc = fx_tf([err_tbl{1}(:,6); err_tbl{2}(:,6)]);                      % set-shift error (ALC)
-
-tbl_anova = table(ID, subj, group, memserr_wo, memserr_alc, sserr_wo, sserr_alc);
-writetable(tbl_anova, 'anova_mixedmodel.txt', 'Delimiter', '\t');
+% %% Run split-plot ANOVA to test for differences between groups and within subjects foro different conditions
+% % Create the ANOVA table from the available variables
+%% This part of the code is fallacious and should be removed when alternative is set!
+% fx_tf = @(x) (x);
+% 
+% ID = nan(npat*2,1); iter = 0;
+% for g = 1:2 % loop through both groups
+%     for k = 1:length(data{g})
+%         iter = iter + 1;
+%         idx_tmp = regexp(data{g}(k).code, 's', 'split');
+%         
+%         ID(iter,1) = str2num(idx_tmp{2}); clear idx_tmp
+%     end
+% end
+% 
+% subj = [1:length(ID)].';
+% group = [ones(length(data{1}),1);ones(length(data{2}),1)*2];
+% memserr_wo = fx_tf([err_tbl{1}(:,7); err_tbl{2}(:,7)]);                     % memory errors (WO)
+% memserr_alc = fx_tf([err_tbl{1}(:,8); err_tbl{2}(:,8)]);                    % memory errors (ALC)
+% sserr_wo = fx_tf([err_tbl{1}(:,5); err_tbl{2}(:,5)]);                       % set-shift error (WO)
+% sserr_alc = fx_tf([err_tbl{1}(:,6); err_tbl{2}(:,6)]);                      % set-shift error (ALC)
+% 
+% tbl_anova = table(ID, subj, group, memserr_wo, memserr_alc, sserr_wo, sserr_alc);
+% writetable(tbl_anova, 'anova_mixedmodel.txt', 'Delimiter', '\t');
 
 end
 
