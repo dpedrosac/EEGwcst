@@ -22,3 +22,5 @@ octave-workspace
 *.mat
 *.txt
 
+# local functions
+/localfunctions

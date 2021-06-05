@@ -5,7 +5,7 @@
 %   -
 %   -
 
-%   Copyright (C) Mai 2021
+%   Copyright (C) May 2021
 %   D. Pedrosa, University Hospital of Gießen and Marburg
 
 %   This software may be used, copied, or redistributed as long as it is

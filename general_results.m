@@ -1,4 +1,4 @@
-function general_results(control, patient, npat, subj1, subj2, wdir)
+function general_results(control, patient, npat, subj1, subj2, paths)
 
 %   This function selects the subjects to be analyzed and provides the
 %   demographics for both groups and also the results of the intakte on
@@ -14,12 +14,11 @@ function general_results(control, patient, npat, subj1, subj2, wdir)
 
 if nansum(~cellfun(@isempty, {control(:).matching})) ~= npat || ...         % if the number of matched pairs in the metadata, does not correspond to the number of
         nansum(~cellfun(@isempty, {control(:).matching})) ~= npat           % subjects that should be included, a script is run in which the matching is performed again
-    save_dir = fullfile('wdir', 'data');
-    matching(control, patient, save_dir)
-    load(strcat(save_dir, '\patdat.mat')) %#ok<*LOAD>
+    matching(control, patient, paths.data_dir)
+    load(fullfile(paths.data_dir, 'patdat.mat')) %#ok<*LOAD>
 end
 
-cd(fullfile(wdir, 'data'))
+cd(paths.data_dir)
 idx = {find(strncmp({patient(:).matching}, 's', 1)), ...
     find(strncmp({control(:).matching}, 's', 1))};                          % indices of patients to which there was a matching (n = 19 * 2, in total)
 fx_print = @(x) sprintf('%.1f', x); fx_print2 = @(x) sprintf(' %.1f', x);   % formula needed to get the data into the right format
@@ -29,7 +28,7 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
     
     age{g} = strcat(fx_print(nanmean([dattmp(:).age])), ' ±',  ...         % summarises age
         fx_print2(nanstd([dattmp(:).age])));
-    gndr{g} = strcat(num2str(sum(deal([dattmp(:).gender]))), ':', ...      % sumfx_printmarises gender
+    gndr{g} = strcat(num2str(sum(deal([dattmp(:).gender]))), ':', ...      % summarises gender
         num2str([numel(dattmp) - sum(deal([dattmp(:).gender]))]));
     dd{g} = strcat(fx_print(nanmean([dattmp(:).dd])), ' ±',  ...           % summarises diseas_duration
         fx_print2(nanstd([dattmp(:).dd])));
@@ -37,7 +36,7 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
         if any(ismember(dd{d}, 'NaN')); dd{d} = 'n.a.'; end
     end
     
-    rt_all = rtimes_trials(subj1, subj2, wdir);                             % uses a different script to extract the response times for the differentv trials;
+    rt_all = rtimes_trials(subj1, subj2, paths);                       % uses a different script to extract the response times for the differentv trials;
     % rt_all consists of two cells (CTRL{1} vs. ET{2}) with four columns:
     %   - shift-wo reaction times
     %   - shift-alc reaction times
@@ -49,7 +48,7 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
     p = progressbar( numel(dattmp), 'percent' );                            % JSB routine for progress bars
     for k = 1:numel(dattmp) % loop through patients, to get the individual values
         p.update( k )
-        err_temp = rt_gen(dattmp(k).code, 'error', wdir);                        % obtains the error counts from the events-files
+        err_temp = rt_gen(dattmp(k).code, 'error', paths);             % obtains the error counts from the events-files
         errors = arrayfun(@(x) [errors{x}; err_temp{x}], 1:2, 'Un', 0);     % concatenates the errors for every group in a matrix
     end
     p.stop();

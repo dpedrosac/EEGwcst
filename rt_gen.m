@@ -1,4 +1,4 @@
-function rt_all = rt_gen(code, steps, wdir)
+function rt_all = rt_gen(code, steps, paths)
 
 %% !!!!This function has been replaced and is not used anymore!!! see als general_results.m
 
@@ -23,7 +23,7 @@ function rt_all = rt_gen(code, steps, wdir)
 %   warranties whatsoever.
 
 events = cell(2,1);
-load_dir = fullfile(wdir, 'data', 'header_and_events');
+load_dir = fullfile(paths.data_dir, 'header_and_events');
 cond = {'WO', 'ALC'};
 fx_tp = @(x) x.';                                                           % formula to transpose a vector
 warning('off','MATLAB:strrep:InvalidInputType');                            % gets rid of the warning concerning the strrep function
