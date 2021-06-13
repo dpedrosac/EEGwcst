@@ -1,7 +1,8 @@
 #require(nlme)
 #require(car)
-#require(ez)
+require(ez)
 require(nparLD)
+options(contrasts=c("contr.sum","contr.poly"))
 
 # set constants & paths
 if(Sys.info()["user"] == "urs") rootdir = "/home/urs/sync/projects/wcst_eeg"
@@ -9,7 +10,7 @@ if(Sys.info()["user"] == "urs") rootdir = "/home/urs/sync/projects/wcst_eeg"
 # read data, convert to long
 df = read.table(file.path(rootdir,"data","anova_mixedmodel.txt"), header = TRUE)
 
-anovafun <- function(df, dv, npermute = 1000){
+anovafun <- function(df, dv, npermute = 1000, debug = TRUE){
 
 df.err = df[, c("ID", "group", paste(dv,"wo", sep = "_"), paste(dv, "alc", sep = "_"))]
 df.err = reshape( df.err, direction = "long",
@@ -61,6 +62,15 @@ for(i in c(1:npermute)){
   res$interaction[i] = diff(aggregate(delta~group, dft, mean)$delta)
 }
 
+# ANALYSIS 4 - do rm Anova with ezanova
+    
+df.err$dv = df.err[[dv]]
+df.err$dvatan = atan(df.err$dv)     
+df.err$dvlog  = log(df.err$dv)   
+df.err$dvlog[df.err$dv == 0] = 0  
+df.err$group = as.factor(df.err$group)
+eza = ezANOVA(data=df.err, dv= dvlog, wid=ID, within=.(condition), between= .(group), type = 3) 
+
 # compare true values to permutation results. assumption: all means of permuted
 # values are 0 (which is true, I checked it)
 sg = sum(abs(res$group)       >= abs(eff.group))       / npermute
@@ -80,6 +90,9 @@ cat("\n\nPermutation test results, probability of effect greater than or equal t
 cat(paste("group:      ", sg, "\n"))    
 cat(paste("condition:  ", sc, "\n"))    
 cat(paste("interaction:", si, "\n"))    
+
+cat("\n\nRepeated measures anova on log normalized data results (ezanova):\n\n")
+print(eza)
 
 }
 
