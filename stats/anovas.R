@@ -9,52 +9,81 @@ if(Sys.info()["user"] == "urs") rootdir = "/home/urs/sync/projects/wcst_eeg"
 # read data, convert to long
 df = read.table(file.path(rootdir,"data","anova_mixedmodel.txt"), header = TRUE)
 
-df.memserr = subset(df, select = -c(subj, sserr_wo, sserr_alc))
-df.memserr = reshape(df.memserr, direction = "long",
-              ,varying = c("memserr_wo","memserr_alc"), v.names = "memserr"
-              ,idvar = c("ID", "group"), timevar = "condition", times = c("wo","alc"))
+anovafun <- function(df, dv, npermute = 1000){
 
+df.err = df[, c("ID", "group", paste(dv,"wo", sep = "_"), paste(dv, "alc", sep = "_"))]
+df.err = reshape( df.err, direction = "long",
+                , varying = c(paste(dv,"wo", sep = "_"), paste(dv, "alc", sep = "_"))
+                , v.names = dv
+                , idvar = c("ID", "group"), timevar = "condition", times = c("wo","alc"))
 
 
 # ANALYSIS 1 - run non-parametric mixed anova-like model from nparLD package
-nparLD(memserr~group*condition, subject = "ID", data = df.memserr, description = FALSE)
+t.np = nparLD( formula(paste(dv, "group*condition", sep = "~"))
+             , subject = "ID", data = df.err, description = FALSE)
 
 
 # ANALYSIS 2 - run non-parametric tests on main and interaction effects separately
 
 # test the main effect of group using Mann-Whitney U Test
-df.memserr.ag.group = aggregate(memserr~group    +ID, data = df.memserr, mean)
-wilcox.test(memserr~group    , data = df.memserr.ag.group)
+df.err.ag.group = aggregate( formula(paste(dv, "group+ID", sep = "~"))
+                           , data = df.err, mean)
+twg = wilcox.test(formula(paste(dv, "~group")), data = df.err.ag.group)
 
 # test the main effect of alcohol
-df$memserr_delta = df$memserr_alc - df$memserr_wo
-wilcox.test(df$memserr_delta)
+df[paste(dv, "delta", sep = "_")] = df[paste(dv,"alc",sep="_")] - df[paste(dv,"wo",sep ="_")]
+twc = wilcox.test(df[[paste(dv, "delta", sep = "_")]])
 
 # test the interaction between group and alcohol
-wilcox.test(memserr_delta~group, data = df)
+twi = wilcox.test(formula(paste(dv, "delta~group", sep = "_")), data = df)
+
 
 # ANALYSIS 3 - do a permutation test
 set.seed(42)
-npermute = 1000
-res = list( group = rep(NA, npermute)
-          , condition = rep(NA, npermute)
+
+res = list( group       = rep(NA, npermute)
+          , condition   = rep(NA, npermute)
           , interaction = rep(NA, npermute))
 
 # calculate true values
-eff.group       = diff(aggregate(memserr~group, df.memserr, mean)$memserr)
-eff.condition   = mean(df$memserr_delta)
-eff.interaction = diff(aggregate(memserr_delta~group, df, mean)$memserr_delta)
+eff.group       = diff(aggregate(formula(paste(dv,"group", sep="~")), df.err, mean)[[dv]])
+eff.condition   = mean(df[[paste(dv, "delta", sep = "_")]])
+eff.interaction = diff(aggregate(formula(paste(dv, "delta~group", sep = "_")), df
+                                , mean)[[paste(dv, "delta", sep = "_")]])
 
 for(i in c(1:npermute)){
-  df.memserr$rand = sample(df.memserr$memserr)
-  res$group[i]    = diff(aggregate(rand~group, df.memserr, mean)$rand)
-  dft =  reshape( df.memserr, direction = "wide", v.names = "rand", idvar = "ID"
+  df.err$rand = sample(df.err[[dv]])
+  res$group[i]    = diff(aggregate(rand~group, df.err, mean)$rand)
+  dft =  reshape( df.err, direction = "wide", v.names = "rand", idvar = "ID"
                 , timevar = "condition")
   dft$delta = dft$rand.alc - dft$rand.wo
   res$condition[i] = mean(dft$delta)
   res$interaction[i] = diff(aggregate(delta~group, dft, mean)$delta)
 }
 
-sum(abs(res$group)       >= abs(eff.group))       / npermute
-sum(abs(res$condition)   >= abs(eff.condition))   / npermute
-sum(abs(res$interaction) >= abs(eff.interaction)) / npermute
+# compare true values to permutation results. assumption: all means of permuted
+# values are 0 (which is true, I checked it)
+sg = sum(abs(res$group)       >= abs(eff.group))       / npermute
+sc = sum(abs(res$condition)   >= abs(eff.condition))   / npermute
+si = sum(abs(res$interaction) >= abs(eff.interaction)) / npermute
+
+print(summary(t.np))
+
+cat("\n\n\nWilcoxon Test for group:\n\n")    
+print(twg)
+cat("\n\n\nWilcoxon Test for condition (alc/wo):\n\n")    
+print(twc)
+cat("\n\n\nWilcoxon Test for group by condition interaction:\n\n")
+print(twi)
+
+cat("\n\nPermutation test results, probability of effect greater than or equal to:\n")
+cat(paste("group:      ", sg, "\n"))    
+cat(paste("condition:  ", sc, "\n"))    
+cat(paste("interaction:", si, "\n"))    
+
+}
+
+sink("error_anova_results.txt")
+anovafun(df, "memserr")
+anovafun(df, "sserr")
+sink(file = NULL)
