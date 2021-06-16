@@ -2,15 +2,29 @@
 #require(car)
 require(ez)
 require(nparLD)
+require(reshape2)
+
+# set correct contrasts for Anova
 options(contrasts=c("contr.sum","contr.poly"))
 
 # set constants & paths
 if(Sys.info()["user"] == "urs") rootdir = "/home/urs/sync/projects/wcst_eeg"
 
 # read data, convert to long
-df = read.table(file.path(rootdir,"data","anova_mixedmodel.txt"), header = TRUE)
+#df = read.table(file.path(rootdir,"data","anova_mixedmodel.txt"), header = TRUE)
+dft = read.table(file.path(rootdir,"data","anova_error_data.txt"), header = TRUE)
 
-anovafun <- function(df, dv, npermute = 1000, debug = TRUE){
+df = dcast(dft, ID  ~ error_type + condition, value.var = "error_count", drop = FALSE)
+dfnames = unique(dft[c("ID", "group")])
+df$group = dfnames$group[match(df$ID, dfnames$ID)]
+cnames = colnames(df)
+cnames = gsub("memory","memserr",cnames)
+cnames = gsub("perseveration","sserr",cnames)
+cnames = gsub("Alc","alc",cnames)
+cnames = gsub("woalc","wo",cnames)
+colnames(df) <- cnames
+
+anovafun <- function(df, dv, npermute = 1000){
 
 df.err = df[, c("ID", "group", paste(dv,"wo", sep = "_"), paste(dv, "alc", sep = "_"))]
 df.err = reshape( df.err, direction = "long",
@@ -70,7 +84,7 @@ df.err$dvlog  = log(df.err$dv)
 df.err$dvlog[df.err$dv == 0] = 0  
 df.err$group = as.factor(df.err$group)
 eza = ezANOVA(data=df.err, dv= dvlog, wid=ID, within=.(condition), between= .(group), type = 3) 
-
+    
 # compare true values to permutation results. assumption: all means of permuted
 # values are 0 (which is true, I checked it)
 sg = sum(abs(res$group)       >= abs(eff.group))       / npermute
@@ -93,7 +107,7 @@ cat(paste("interaction:", si, "\n"))
 
 cat("\n\nRepeated measures anova on log normalized data results (ezanova):\n\n")
 print(eza)
-
+    
 }
 
 sink("error_anova_results.txt")
