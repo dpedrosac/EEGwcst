@@ -4,8 +4,8 @@ function rt_all = rt_gen(code, steps, paths)
 %   metrics related to the errors. Therefore, only the code of the subject
 %   is needed in order to laod the file. Other possible options (steps) are:
 
-%   (1) rt_all - finds a all the events and extracts the duration between
-%   the presentation and the button press
+%   (1) rt_all - finds all events and extracts durations between
+%   presentation and button press
 %   (2) rt_time - provides a list with all response times for every trial
 %   in the dataset
 %   (3) error - provides a list with the number of errors and the
@@ -64,6 +64,29 @@ for c = 1:2 % loops through the two different conditions
             end
             rt_all{c} = rt_time;
             
+        case 'mark_incomplete'
+            %% Description: =========================================   %%
+            % According to Bareceló et al. (1999/2003), only completed 
+            %   trials should be used for ERP analyses. Therefore it is 
+            %   necessary to mark trials in which some error occurred;
+
+            incorrect = zeros(numel(events),1);                                                 % create new value fror structure
+            S1 = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
+                {events(:).value}, 'Uniform', 0), 'S1'));                   % gets the first trial of every repetition
+            iter = 0;
+            for m = 1:numel(S1)-1                                           % run though one run andlook for errors
+                events_temp = {events(S1(m):S1(m+1)).value};
+                error = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
+                    events_temp, 'Uniform', 0), 'S40') | ...
+                    strcmp(cellfun(@(x) strrep(x,' ', ''), ...
+                    events_temp, 'Uniform', 0), 'S50'), 1);
+                if ~isempty(error)
+                    iter = iter + 1;
+                    incorrect(S1(m):S1(m+1)) = iter;
+                end
+                temp = num2cell(incorrect);
+                [events.incomplete] = temp{:};
+            end
         case 'error' % estimates the different errors available
             %% Description: =========================================   %%
             % In the paradigm described by Barcelo et al. (1999), different
@@ -86,8 +109,9 @@ for c = 1:2 % loops through the two different conditions
             for k = 1:numel(indices) % loops through the different errors
                 idx_temp =  strcmp(cellfun(@(x) strrep(x,' ', ''), ...
                     {events(:).value}, 'Uniform', 0), indices{k});
-                idx = [idx; find(fx_tp(idx_temp))];                   %#ok<AGROW> % add the index list to the available indices
+                idx = [idx; find(fx_tp(idx_temp))];             %#ok<AGROW> % add the index list to the available indices
             end
+            
             % Remove anticipations, that is when someone foresaw
             % (accidentally) the rule change and remove the entire set
             S40 = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
@@ -104,18 +128,16 @@ for c = 1:2 % loops through the two different conditions
                         lims1 = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
                             {events(S40(m):numel(events)).value}, 'Uniform', 0), 'S1'));
                         lims1 = lims1-2;
-                        if isempty(lims1)
-                            lims1 = numel(events)-S40(m);
-                        end
+                        if isempty(lims1); lims1 = numel(events)-S40(m); end
                     end
                     lim = [S40(m)-2, S40(m)+lims1];
-                    
                     try idx_bad = [idx_bad, lim(1):lim(2)]; catch; keyboard; end
                 end
                 idx_good = ~ismember(idx, idx_bad);
                 idx = idx(idx_good);
             end
     end
+    
     %% Incorporate information about surrounding events & remove parts
     errors = events(idx);
     rt_all{c} = rmfield(errors, {'type', 'duration', 'offset'});%#ok<AGROW> % remove this part as not needed and append some additional information

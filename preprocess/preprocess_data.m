@@ -11,17 +11,12 @@ function preprocess_data(subj, wdir, type)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
-cd(wdir);
-load([wdir 'wcst\patdat.mat']);                                             % this file loads the meta data
-
-if strcmp(type, 'p'); tolom = subj{2}; else tolom = subj{1}; end;           % selects whether (p) pateints or controls (c) are analysed (see (type))
+load([wdir '\data\patdat.mat']);                                %#ok<*LOAD> % this file loads the meta data
+if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
 
 % General settings
-steps2apply = 1:3;                                                          % three steps available: (1):
-loaddir     = [wdir 'wcst\'];
-% cond        = {'WO', 'ALC'};                                              % conditions available
-hpf         = [.1 3];                                                       % high-pass filter frequency
-lpf         = 30;
+steps2apply = 3;                                                            % three steps available: (1):
+datadir     = [wdir '\data\'];
 frsp        = 5000/200;                                                     % factor at which data was resampled
 type_calc   = 'erp';
 
@@ -35,126 +30,49 @@ for np = tolom % loop through all subjects of one group
         code_participant = upper(control(np).code);                         % relevant information for later in the next few lines
         bad_trials = control(np).badtrials;
     end
-    outdir = strcat(loaddir, code_participant, '\');                        % directory at which data will be saved
-    cd(outdir);
+    outdir = fullfile(datadir, 'data_merged');                              % directory at which data will be saved
     
     %% Starts with the different steps available (see general settings)
     for steps = steps2apply % loop through all steps to to (see general settings)
         switch (steps)
-            case 1 % this step does the preprocessing of the data
-                % where/what filename to save
+            case 1 % Filtering data for ERP and TFR estimation
+                % General settings
+                hpf     = [.1 3];                                           % high-pass filter frequency
+                lpf     = 30;
+                
                 filename_clean = {strcat('datclean_', code_participant, '_WO.mat'), ...
                     strcat('datclean_', code_participant, '_ALC.mat')};
                 filename_preproc = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
                     strcat('datpreproc_', code_participant, '_ALC.mat')};
                 
                 for c = 1:2 % loop through both conditions
-                    if ~exist(strcat(outdir, filename_preproc{c}), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    if exist(strcat(outdir, filename_preproc{c}), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                         fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_participant )
                         continue
                     else
-                        load(strcat(outdir, filename_clean{c}));            % this line loads the cleaned data into workspace (for details see clean_data.m)
-                        
-                        data_clean.elec = ...                               % this block assigns the standard electrode positions to the data
-                            ft_read_sens([wdir 'wcst\brainamp.sfp']);
-                        
-                        [data_clean.label,I] = sort(data_clean.label);
-                        data_clean.trial{1,1} = data_clean.trial{1,1}(I,:);
-                        
-                        % Do the pre-processing in two steps: (1)
-                        % preprocess for the ERP estimation, (2) preprocess
-                        % for the TRF computation
-                        
-                        cfg = [];
-                        cfg.reref       = 'yes';                            % the next few lines are intended to create average-referenced data
-                        cfg.refchannel  = 'EEG';                            % to average reference data, the refchannel is set to 'all'
-                        cfg.detrend     = 'yes';
-                        cfg.bpfilter    = 'yes';                            % band-pass filter between .1 and 30Hz
-                        cfg.bpfilttype  = 'firws';                          % Filter-type: FIR (window-scaled), for visualisation set cfg.plotfiltresp to 'yes'
-                        cfg.bpfreq      = [hpf(1) lpf];                     % filter frequencies
-                        cfg.plotfiltresp= 'no';
-                        data_preproc{1} = ft_preprocessing(cfg, data_clean);
-                        
-                        cfg = [];
-                        cfg.reref       = 'yes';                            % the next few lines are intended to create average-referenced data
-                        cfg.refchannel  = 'EEG';                            % to average reference data, the refchannel is set to 'all'
-                        cfg.detrend     = 'yes';
-                        cfg.hpfilter    = 'yes';                            % in a second step, data is filtered in order to make TFR estimations possible, therefore, only hpf is used (lpf may be applied later)
-                        cfg.hpfilttype  = 'firws';                          % Filter-type: FIR (window-scaled), for visualisation set cfg.plotfiltresp to 'yes'
-                        cfg.hpfreq      = hpf(2);                           % cutoff frequency
-                        cfg.plotfiltresp= 'no';
-                        data_preproc{2} = ft_preprocessing(cfg, data_clean);
-                        
-                        save(strcat(outdir, filename_preproc{c}), ...
-                            'data_preproc', '-v7.3');                           % saves the preprocessed EEG to a file
+                        filter_rawdata(filename_clean{c}, ...
+                            filename_preproc{c}, hpf, lpf, datadir)
                     end
                 end
                 
-            case 2 % this step rereferences the data to an average electrode
-                % Defines the filename from where data is loaded (filename_clean) and
-                % where/what filename to save
+            case 2 % rereference data to "average electrode" and cut
                 filename_clean = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
                     strcat('datpreproc_', code_participant, '_ALC.mat')};
-                filename_trialdef = {strcat('trialdef_', code_participant, '_WO.mat'), ...
-                    strcat('trialdef_', code_participant, '_ALC.mat')};
+                filename_epoched = fullfile(outdir, ...
+                    sprintf('data_merged_%s.mat', type_calc));
                 
-                switch type_calc
-                    case 'erp'
-                        filename_epoched = strcat('data_merged_', code_participant, '.mat');
-                        idx_file = 1;
-                    case 'tfr'
-                        filename_epoched = strcat('data_merged_TFR_', code_participant, '.mat');
-                        idx_file = 2;
-                end
-                
-                for c = 1:2 % loop through both conditions
-                    if ~exist(strcat(outdir, filename_epoched), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
-                        fprintf('\nepoching for %s already done, continuing with next step ...\n', code_participant )
-                        continue
-                    else
-                        load(strcat(outdir, filename_clean{c}));            % this line loads the cleaned data into workspace (for details see clean_data.m)
-                        load(strcat(outdir, filename_trialdef{c}));         % this line loads the trial definitions so that data may be cut into chunks to be processed
-                        
-                        data_clean = data_preproc{idx_file};
-                        
-                        cfg             = [];
-                        cfg.trl         = trialdef.trl;
-                        cfg.trl(:,1:2)  = round(cfg.trl(:,1:2)./frsp);      % the next two lines intend to "resample" the trialdefinition in a
-                        cfg.trl(:,3)    = round(cfg.trl(:,3)./frsp);        % admittedly not very elegant way, but it works!
-                        idx_low         = find(cfg.trl(:,1) - ...
-                            cfg.trl(:,2) == -499);
-                        idx_high         = find(cfg.trl(:,1) - ...
-                            cfg.trl(:,2) == -501);
-                        if ~isempty(idx_low)
-                            cfg.trl(idx_low,2) = cfg.trl(idx_low,2)+1;
-                        end
-                        
-                        if ~isempty(idx_high)
-                            cfg.trl(idx_high,2) = cfg.trl(idx_high,2)+1;
-                        end
-                        
-                        cfg.minlength   = 'maxperlen';                          % this ensures all resulting trials are equal length
-                        data_epoched{c} = ft_redefinetrial(cfg, data_clean);
-                        
-                        if c == 2 % in the second condition, data from the ALC condition is changed to make it identifiable and data is merged to one file
-                            data_epoched{c}.trialinfo = ...
-                                data_epoched{c}.trialinfo+100;              % adds a n arbitrary value to the trialinfo data, in order to make it unambiguos later
-                            
-                            cfg = [];                                       % merges both conditions to a single file
-                            data_merged = ...
-                                ft_appenddata(cfg, data_epoched{1}, ...
-                                data_epoched{2}); clear data_epoched
-                            save(strcat(outdir, filename_epoched), ...
-                                'data_merged', '-v7.3');                    % saves the merged EEG and acc data -to one file
-                        end
-                    end
+                if ~exist(filename_epoched, 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    fprintf('\nepoching for %s already done, continuing with next step ...\n', code_participant )
+                    continue
+                else
+                    epoch_trials(filename_clean, filename_save, code_participant, wdir, idx_file)
                 end
                 
             case 3 % this step extracts the badtrials and removes them from data; in case not yet identified, data is plotted
                 
                 % Defines the filename from where data is loaded (filename_epoched) and
                 % where/what filename to save
-
+                
                 switch type_calc
                     case 'erp'
                         filename_final = strcat('data_final_', code_participant, '.mat');
@@ -165,12 +83,12 @@ for np = tolom % loop through all subjects of one group
                         filename_epoched = strcat('data_merged_TFR_', code_participant, '.mat');
                         idx_file = 2;
                 end
-
-                if ~exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                
+                if exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                     fprintf('\nremoving badtrials for %s already done, continuing with next step ...\n', code_participant )
                     continue
                 else
-                    load(strcat(outdir, filename_epoched));            % this line loads the cleaned data into workspace (for details see clean_data.m)
+                    load(fullfile(outdir, filename_epoched));            % this line loads the cleaned data into workspace (for details see clean_data.m)
                     
                     % The next few lines are intended to remove
                     % anticipations or "bad blocks"

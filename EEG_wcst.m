@@ -4,13 +4,13 @@
 %   the analysis of the source data
 
 restoredefaultpath                                                          % removes confounding software to avoid interaction with fielsdtrip 
-addpath('c:\Users\David\skripte\fieldtrip'); ft_defaults                                        % set feidltrip defaults
-addpath('c:\Users\David\skripte\lambda'); addpath('c:\Users\David\skripte\othercolor')                             % change folder to current folder and add a series of colorbars to plot data later
-addpath('c:\Users\David\skripte\lambda\multitaper\m\');                                            % add JSB routines for TFR analyses
+addpath('d:\skripte\fieldtrip'); ft_defaults                                        % set feidltrip defaults
+addpath(genpath('d:\skripte\lambda')); addpath('d:\skripte\othercolor')                             % change folder to current folder and add a series of colorbars to plot data later
+addpath('d:\skripte\lambda\multitaper\m\');                                            % add JSB routines for TFR analyses
 
 %% general settings
-wdir = 'C:\Users\David\projekte\';                                           % (wdir) defines the working drive for the script
-save_dir = strcat(wdir, 'wcst\');
+wdir = 'd:\skripte\lambda\';                                           % (wdir) defines the working drive for the script
+save_dir = strcat(wdir, 'data\');
 cd(save_dir);
 
 % subj{1} = controls, subj{2} = patients
