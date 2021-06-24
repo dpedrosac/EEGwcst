@@ -1,4 +1,4 @@
-function preprocess_data(subj, wdir, type)
+function preprocess_data(subj, ROOTDIR, type)
 
 %   This function does all necessary preprocessing steps in order to get
 %   all further analyses ready
@@ -11,19 +11,19 @@ function preprocess_data(subj, wdir, type)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
-cd(wdir);
-load([wdir 'wcst\patdat.mat']);                                             % this file loads the meta data
+%% General settings
+cd(ROOTDIR);
+loaddir     = [ROOTDIR '\data\'];
+load([loaddir '\patdat.mat']);                                   %#ok<LOAD> % this file loads the meta data
+if strcmp(type, 'p'); tolom = subj{2}; else tolom = subj{1}; end            % selects whether (p) pateints or controls (c) are analysed (see (type))
 
-if strcmp(type, 'p'); tolom = subj{2}; else tolom = subj{1}; end;           % selects whether (p) pateints or controls (c) are analysed (see (type))
-
-% General settings
-steps2apply = 1:3;                                                          % three steps available: (1):
-loaddir     = [wdir 'wcst\'];
-% cond        = {'WO', 'ALC'};                                              % conditions available
+steps2apply = 3;                                                            % three steps available: (1):
 hpf         = [.1 3];                                                       % high-pass filter frequency
 lpf         = 30;
 frsp        = 5000/200;                                                     % factor at which data was resampled
 type_calc   = 'erp';
+outdir = fullfile(loaddir, 'data_merged');                                  % directory at which data will be saved
+if ~exist(outdir, 'dir'); mkdir(outdir); end
 
 for np = tolom % loop through all subjects of one group
     if strcmp(type, 'p')
@@ -35,14 +35,11 @@ for np = tolom % loop through all subjects of one group
         code_participant = upper(control(np).code);                         % relevant information for later in the next few lines
         bad_trials = control(np).badtrials;
     end
-    outdir = strcat(loaddir, code_participant, '\');                        % directory at which data will be saved
-    cd(outdir);
     
     %% Starts with the different steps available (see general settings)
     for steps = steps2apply % loop through all steps to to (see general settings)
         switch (steps)
-            case 1 % this step does the preprocessing of the data
-                % where/what filename to save
+            case 1 % start filtering data
                 filename_clean = {strcat('datclean_', code_participant, '_WO.mat'), ...
                     strcat('datclean_', code_participant, '_ALC.mat')};
                 filename_preproc = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
@@ -53,10 +50,9 @@ for np = tolom % loop through all subjects of one group
                         fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_participant )
                         continue
                     else
-                        load(strcat(outdir, filename_clean{c}));            % this line loads the cleaned data into workspace (for details see clean_data.m)
-                        
+                        load(strcat(outdir, filename_clean{c})); %#ok<LOAD> % this line loads the cleaned data into workspace (for details see clean_data.m)
                         data_clean.elec = ...                               % this block assigns the standard electrode positions to the data
-                            ft_read_sens([wdir 'wcst\brainamp.sfp']);
+                            ft_read_sens([ROOTDIR 'wcst\brainamp.sfp']);
                         
                         [data_clean.label,I] = sort(data_clean.label);
                         data_clean.trial{1,1} = data_clean.trial{1,1}(I,:);
@@ -166,11 +162,11 @@ for np = tolom % loop through all subjects of one group
                         idx_file = 2;
                 end
 
-                if ~exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                if exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                     fprintf('\nremoving badtrials for %s already done, continuing with next step ...\n', code_participant )
                     continue
                 else
-                    load(strcat(outdir, filename_epoched));            % this line loads the cleaned data into workspace (for details see clean_data.m)
+                    load(fullfile(outdir, filename_epoched));            % this line loads the cleaned data into workspace (for details see clean_data.m)
                     
                     % The next few lines are intended to remove
                     % anticipations or "bad blocks"

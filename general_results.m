@@ -17,7 +17,7 @@ if nansum(~cellfun(@isempty, {control(:).matching})) ~= npat || ...         % if
     matching(control, patient, paths.data_dir)
     load(fullfile(paths.data_dir, 'patdat.mat')) %#ok<*LOAD>
 end
-
+%%
 cd(paths.data_dir)
 idx = {find(strncmp({patient(:).matching}, 's', 1)), ...
     find(strncmp({control(:).matching}, 's', 1))};                          % indices of patients to which there was a matching (n = 19 * 2, in total)
@@ -106,10 +106,10 @@ idx_pat = {1:npat, 1:npat};                                                 % in
 data_raw = arrayfun(@(x) [err_tbl{x}(idx_pat{x},5:8), ...
     reshape(1:length(data{x}(idx_pat{x})), ...
     [length(data{x}(idx_pat{x})),1])], 1:2, 'Un', 0);
-plot_effect_alcohol(data_raw, 99, 2)
+plot_effect_alcohol(data_raw, 90, 2)
 dat_plot{1} = [rt_all{2}(:,1:2), rt_all{1}(:,1:2)];
 dat_plot{2} = [rt_all{2}(:,3:4), rt_all{1}(:,3:4)];
-plot_rt_anova(dat_plot, 98, 1);
+plot_rt_anova(dat_plot, 89, 1);
 
 test_anova = 1;
 switch test_anova
@@ -144,7 +144,7 @@ switch test_anova
         tble.error_type = categorical(tble.error_type, 1:2, ...
             {'memory' 'perseveration'});
         tble.group= categorical(tble.group, 1:2, ...
-            {'CTRL_subj' 'ET_pat'});
+            {'ET_pat' 'CTRL_subj'});
         tble.condition = categorical(tble.condition, 1:2, ...
             {'woAlc' 'Alc'});
         tble =  [tble(:,end), tble(:,end-1), tble(:,1:4)];

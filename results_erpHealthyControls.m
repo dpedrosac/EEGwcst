@@ -1,5 +1,11 @@
+function results_erpHealthyControls(subj1, subj2)
+
 %   This script runs analyses to replicate some general hypothesis, for
 %   validation of the already present data.
+
+%   Input:  
+%   subj1 - ET-patients
+%   subj2 - control subjects
 
 %   Hypotheses:
 %   -
@@ -13,15 +19,22 @@
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
+if nargin == 0 % use all subjects if function is called without inputs
+    subj1 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];    % ET-Patients (not used here)
+    subj2 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50]; % CTRL-subjects
+end
+all_subj = [subj1, subj2];
 
 %% General settings
+ft_defaults;                                                                % load fieldtrip defaults
+p = figure_params_gen;                                                      % load general parameters for plots
+
 if strcmp(getenv('username'), 'dpedrosa')
     wdir = 'D:\skripte\lambda\';
     addpath(genpath(wdir));
     addpath('D:\skripte\fieldtrip');
     data_dir = fullfile(wdir, 'data');
-end
-if strcmp(getenv('USER'), 'urs')
+elseif strcmp(getenv('USER'), 'urs')
     addpath('/opt/fieldtrip/fieldtrip-20210507');
     projrootdir = '/home/urs/sync/projects/wcst_eeg';
     wdir = [projrootdir, '/analysis'];
@@ -29,40 +42,36 @@ if strcmp(getenv('USER'), 'urs')
     data_dir = fullfile(projrootdir, '/data');
 end
 
-ft_defaults;                                                                % load fieldtrip defaults
-p = figure_params_gen;                                                      % load general parameters for plots
-
-subj1 = [1, 2, 27, 28, 29, 30, 35, 37, 38, 39, 41, 46, 47, 48, 49, 50];     % CTRL-subjects
-subj2 = [3, 4, 5, 7, 8, 10, 14, 18, 19, 20, 22, 23, 24, 42, 44, 45];        % ET-Patients (not used here)
-all_subj = [subj1, subj2];
-
-try
-    fprintf('\nLoading preprocessed file(s) ...')
-    load(fullfile(data_dir, 'avgs.mat'))
-    load(fullfile(data_dir, 'avg5-8.mat'))
-    fprintf("done!\n")
-catch
-    fprintf('\n Averages not found ar %s, storing data again', data_dir)
-    estimate_averages(all_subj, data_dir)
-end
-
-load(fullfile(data_dir, 'avgs.mat'));
-
-print_legend
-%% start with analyses
-% General settings for plotting and analyses
+% Settings for plotting and analyses
 rows            = 2;
-ch              = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz'};                  % channels of interest
+ch              = {'Fz', 'FCz', 'Cz', 'CPz', 'Pz'};                         % channels of interest
 idx_group       = {find(ismember(all_subj, subj1)), ...
     find(ismember(all_subj, subj2))};
 idx_cond        = {'avg1_work', 'avg2_work'};
 toi = [-.15 1]; bsl = [-.15 0];
 
+
+%% Load data if present
+try
+    fprintf('\nLoading preprocessed file(s) ...')
+    load(fullfile(data_dir, 'avgs.mat')); 
+    load(fullfile(data_dir, 'avg5-8.mat'))
+    fprintf("done!\n")
+catch
+    fprintf('\n Averages not found at: %s, storing data again', data_dir)
+    estimate_averages(all_subj, data_dir)
+    fprintf('\nLoading preprocessed file(s) ...')
+    load(fullfile(data_dir, 'avgs.mat')); %#ok<LOAD>
+    fprintf("done!\n")
+end
+print_legend
+
+%% Start analyses using fieldtrip and custom made scripts
 %% Early vs late shift trials, CTRL-subjects
 % cfg = []; avg = cell(1,2);
 % avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:22});
 % avg{2} = subselect_trials({avg5{idx_group{1}}}, {25});
-% 
+%
 % lgnd = {'early responses', 'late responses'};
 % fignum = 10;
 % nCol = 3;
@@ -107,7 +116,7 @@ plot_differencesERP(avg)
 % avg = cell(1,2);
 % avg{1} = subselect_trials({avg5{idx_group{1}}}, {21:25});
 % avg{2} = subselect_trials({avg5{idx_group{2}}}, {21:25});
-% 
+%
 % lgnd = {'CTRL-subjects', 'ET-patients', 'Group difference'};
 % fignum = 14;
 % tit = 'Topographical distribution of p300 on repeat-trials';
@@ -169,7 +178,7 @@ tit = 'ET-patients (shift trials)';
 plot_ERPcomparisions(avg, lgnd, fignum, ch, toi, bsl, nCol, mcp, tit)
 
 
-%% Topolots for late p300 answer for ET-patients (shifted trials) w/ and wo/ alcohol 
+%% Topolots for late p300 answer for ET-patients (shifted trials) w/ and wo/ alcohol
 
 cfg = []; avg = cell(1,2);
 avg{1} = subselect_trials({avg6{idx_group{2}}}, {1:200});
@@ -195,7 +204,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % idx_group = {find(ismember(subj, subj1)), find(ismember(subj, subj2))};
 % idx_cond = {'avg1_work', 'avg2_work'};
 % mcp = 'cluster_ft';
-% 
+%
 % opt = 'alc_group';
 % switch opt
 %     case 'group'
@@ -227,7 +236,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %         leg = {'wo/ alcohol', 'with alcohol'};
 %         tit = {'CTRL-subj', 'ET-patients'};
 % end
-% 
+%
 % % - Compute #rows/cols, dimensions, and positions of lower-left corners.
 % nCol = 3 ;  nRow = ceil( numel(ch) / nCol ) ;
 % rowH = 0.7 / nRow ;  colW = 0.65 / nCol ;
@@ -236,9 +245,9 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % toi = [-.2 1]; bsl = [-.25 0];
 % toi = dsearchn(avg1_work{1}.time', toi');                                    % time of interest for ERP estimation
 % time_vector = avg1{1}.time(toi(1):toi(2));                    % create a time_vector to make things easier
-% 
+%
 % bsl = dsearchn(avg1_work{1}.time', bsl');                                    % indices for baseline period
-% 
+%
 % for fig = 1:2 % loops through early and late trials
 %     figure(100-fig-fc); clf;
 %     set( gcf, 'Color', 'White', 'Unit', 'Normalized', ...
@@ -247,15 +256,15 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %     for dId = 1:numel(ch) % loop through the channels of interest
 %         rowId = ceil( dId / nCol ); colId = dId - (rowId - 1) * nCol ;
 %         axes( 'Position', [colX(colId), rowY(rowId), colW, rowH] ) ;
-%         
+%
 %         chtemp = find(strcmp(avg1_work{1}.label, ch{dId}));
 %         dat_all = cell(1,2);                                                    % pre-allocate space
-%         
+%
 %         for g = 1:2 % loop through both groups (1) CTRL,; (2) ET;
 %             data_temp = arrayfun(@(x) squeeze(avg_dat{x}.trial(:,chtemp,:)), idx_group{g}, 'Un', 0);
 %             dat_all{g} = cat(1, data_temp{:});
 %             dat_all{g} = fx_bslsub_all(dat_all{g}, bsl); clear data_temp
-%             
+%
 %             clear tmp_data_avg;
 %             fx_plots = {@(x) fac*nanmean(x), ...
 %                 @(x) fac*(nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
@@ -296,7 +305,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %                         mask{dId} = ft_statistics_montecarlo(cfg, [dat_all{1}(:,toi(1):toi(2)).', dat_all{2}(:,toi(1):toi(2)).'], cfg.design);
 %                         h = mask{dId}.mask.';
 %                 end
-%                 
+%
 %                 if ~isempty(h) && any(h==1)
 %                     idx_h1 = find(diff(h) == 1);
 %                     idx_h2 = find(diff(h) == -1);
@@ -305,7 +314,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %                     elseif size(idx_h1,2) == 1 && isempty(idx_h2)
 %                         idx_h2 = length(h)-1;
 %                     end
-%                     
+%
 %                     for sig_h = 1:numel(idx_h1)
 %                         fillx = [time_vector(idx_h1(sig_h):idx_h2(sig_h)), fliplr(time_vector(idx_h1(sig_h):idx_h2(sig_h)))];
 %                         filly = [ones(1,size(fillx,2)/2).*5 ones(1,size(fillx,2)/2).*-5];
@@ -321,7 +330,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %                     'EdgeColor', p.greys{1})
 %             end
 %         end
-%         
+%
 %         %         switch indiv
 %         %             case (1)
 %         %                 colors = {[0, 0, 120]./255, [120, 0, 0]./255};
@@ -330,11 +339,11 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %         %                     plot(dat2.time(toi(1):toi(2)), nanmean(squeeze(avg1{m}.trial(:, chtemp, toi(1):toi(2))),1), 'Color', [colors{c}, .2])
 %         %                 end
 %         %         end
-%         
+%
 %         plot([time_vector(1) time_vector(end)], [0 0], 'k');
 %         grid on; box off
 %         plot([0 0],[-1 1]*6, 'k--')
-%         
+%
 %         if dId == numel(ch)
 %             legend([m(1), m(end)], leg, 'Location', 'SouthEast')
 %             yl = cell2mat(get(mygca, 'Ylim'));
@@ -342,7 +351,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %             set(mygca, 'Ylim', .75.*ylnew, ...
 %                 'Xlim', [time_vector(1) time_vector(end)])
 %         end
-%         
+%
 %         if rowId == 2
 %             xlabel('time [in s.]', 'FontName', p.ftname, 'FontSize', p.ftsize(1));
 %         end
@@ -355,9 +364,9 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % end
 % %%  plot only Fz and Pz and for the conditions the errors on top and the
 % %   late responses at the bottom, providing a 2x2 plot
-% 
+%
 % p = figure_params_gen;                                                      % load general parameters for plots
-% 
+%
 % % formulae used in the script:
 % fx_bslsub = @(x,y,z) bsxfun(@minus, x(y,:), nanmean(x(y,z(1):z(2))));       % baseline subtraction
 % fx_bslsub_all = @(x,z) bsxfun(@minus, x, nanmean(nanmean(x(:,z(1):z(2)),1)));
@@ -365,7 +374,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %     @(x) fac*(nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
 %     @(x) fac*(nanmean(x) + 1.96*nanstd(x)./sqrt(size(x,1)))};
 % idx_group = {find(ismember(subj, subj1)), find(ismember(subj, subj2))};
-% 
+%
 % % settings for the plots
 % ch          = {'Fz', 'Pz'};                                                 % channels of interest
 % rows        = 2;                                                            % rows to plot
@@ -380,17 +389,17 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % sb_title    = {'late responses', 'wrong_trials'};
 % toi         = [-.2 1];
 % bsl         = [-.25 -0.05];
-% 
+%
 % % - Compute #rows/cols, dimensions, and positions of lower-left corners.
 % nCol = 2 ;  nRow = 2 ;
 % rowH = 0.7 / nRow ;  colW = 0.65 / nCol ;
 % colX = 0.06 + linspace( 0, 0.96, nCol+1 ) ;  colX = colX(1:end-1) ;
 % rowY = 0.1 + linspace( 0.9, 0, nRow+1 ) ;  rowY = rowY(2:end) ;
-% 
+%
 % toi = dsearchn(avg1_work{1}.time', toi');                                   % time of interest for ERP estimation
 % time_vector = avg1{1}.time(toi(1):toi(2));                                  % create a time_vector to make things easier
 % bsl = dsearchn(avg1_work{1}.time', bsl');                                   % indices for baseline period
-% 
+%
 % figure(100-fc); clf;                                                    % create one figure for all data (2x2 design)
 % set( gcf, 'Color', 'White', 'Unit', 'Normalized', ...
 %     'Position', [0.1,0.1,0.6,0.6] ) ;
@@ -403,14 +412,14 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %         axes( 'Position', [colX(colId), rowY(rowId), colW, rowH] ) ;
 %         chtemp = find(strcmp(avg1_work{1}.label, ch{dId}));                 % find channel index
 %         dat_all = cell(1,2);                                                % pre-allocate space
-%         
+%
 %         for g = 1:2 % loop through both groups (1) CTRL,; (2) ET;
 %             data_temp = ...                                                 % the next few lines extract only the data for groupm (g)
 %                 arrayfun(@(x) squeeze(avg_dat{x}.trial(:,chtemp,:)), ...
 %                 idx_group{g}, 'Un', 0);
 %             dat_all{g} = cat(1, data_temp{:});                              % concatenates data to a two-dimensional matrix (trials x time)
 %             dat_all{g} = fx_bslsub_all(dat_all{g}, bsl);                    % performs baseline subtraction
-%             
+%
 %             clear tmp_data_avg data_temp
 %             for fx = 1:numel(fx_plots) % loop through different metrics
 %                 tmp_data_avg(fx,:) = fac * fx_plots{fx}(dat_all{g}(:,toi(1):toi(2)));
@@ -422,7 +431,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %             f(g) = fill(fillx, filly, [p.colors{g+2}], 'EdgeColor', 'none', 'FaceAlpha', .2);
 %             mygca(iter) = gca;
 %             set(gca, 'FontName', p.ftname, 'FontSize', p.ftsize(2))
-%             
+%
 %             if g == 2
 %                 switch mcp
 %                     case 'none'
@@ -449,7 +458,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %                         mask{dId} = ft_statistics_montecarlo(cfg, [dat_all{1}(:,toi(1):toi(2)).', dat_all{2}(:,toi(1):toi(2)).'], cfg.design);
 %                         h = mask{dId}.mask.';
 %                 end
-%                 
+%
 %                 if ~isempty(h) && any(h==1)
 %                     idx_h1 = find(diff(h) == 1);
 %                     idx_h2 = find(diff(h) == -1);
@@ -458,7 +467,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %                     elseif size(idx_h1,2) == 1 && isempty(idx_h2)
 %                         idx_h2 = length(h)-1;
 %                     end
-%                     
+%
 %                     for sig_h = 1:numel(idx_h1)
 %                         fillx = [time_vector(idx_h1(sig_h):idx_h2(sig_h)), fliplr(time_vector(idx_h1(sig_h):idx_h2(sig_h)))];
 %                         filly = [ones(1,size(fillx,2)/2).*5 ones(1,size(fillx,2)/2).*-5];
@@ -477,7 +486,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %         plot([time_vector(1) time_vector(end)], [0 0], 'k');
 %         grid on; box off
 %         plot([0 0],[-1 1]*6, 'k--')
-%         
+%
 %         if iter == numel(ch)*2
 %             legend([m(1), m(end)], leg, 'Location', 'SouthEast')
 %             yl = cell2mat(get(mygca, 'Ylim'));
@@ -485,7 +494,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %             set(mygca, 'Ylim', .75.*ylnew, ...
 %                 'Xlim', [time_vector(1) time_vector(end)])
 %         end
-%         
+%
 %         if rowId == 2
 %             xlabel('time [in s.]', 'FontName', p.ftname, 'FontSize', p.ftsize(1));
 %         end
@@ -496,7 +505,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 %     text( 0.5, 0, tit, 'FontName', p.ftname, 'FontSize', p.ftsize(2), 'FontWeight', 'Bold', ...
 %         'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Bottom' ) ;
 % end
-% 
+%
 % %% topoplots
 % figure(2);
 % %formulae and general settings
@@ -504,10 +513,10 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % idx_group       = {find(ismember(subj, subj1)), find(ismember(subj, subj2))};
 % toi             = [.3 .7];
 % bsl             = [-.25 -0.05];
-% 
+%
 % % Average the timelockstatistics results
 % avgs = {avg2, avg6};
-% 
+%
 % cfg = []; cfgl = []; cfgc = [];
 % cfgl.layout             = 'EEG1005.lay';
 % cfgc.layout             = ft_prepare_layout(cfgl);                  % prepares the layout according to the definition before
@@ -526,22 +535,22 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % cfgc.comment            = 'no';                                     % removes the comments that appear at lower leftcorner in FT topoplots
 % cfgc.layout.pos(:,1) = cfgc.layout.pos(:,1)*1.07;                   % the next two lines shift the values so that
 % cfgc.layout.pos(:,2) = cfgc.layout.pos(:,2)*1.2;                    % the interpolation of results is minimised
-% 
+%
 % cfg.keepindividual = 'yes';
 % for n = 1:2 % loop throughj both groups
 %     avg_all{n} = eval('ft_timelockgrandaverage(cfg, avg2_work{idx_group{n}})');
 %     avg_all{n}.avg = squeeze(nanmean(avg_all{n}.individual,1));
 %     avg_all{n}.mdn = squeeze(nanmedian(avg_all{n}.individual,1));
-%     
+%
 %     subplot(1,2,n);
 %     ft_topoplotER(cfgc,avg_all{n})
 % end
-% 
-% 
-% 
-% 
-% 
-% 
+%
+%
+%
+%
+%
+%
 % %%
 % figure
 % cfg = [];
@@ -552,7 +561,7 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % cfg.xlim = [-0.2 1.4];
 % cfg.baseline = [-0.3 0];
 % ft_multiplotER(cfg, avg_all2, avg_all4);
-% 
+%
 % %%
 % cfg = [];
 % cfg.xlim = [-0.2:.1:1.2];
@@ -560,15 +569,15 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % cfg.layout = ft_prepare_layout(avg1{1});
 % cfg.baseline = [-.2 0];
 % ft_topoplotER(cfg,avg_all4);
-% 
-% 
+%
+%
 % %%
 % timepoint=0.2;
 % cfg = [];
 % cfg.zlim='maxmin';
 % cfg.xlim=[timepoint timepoint];
 % cfg.layout = 'EEG1005';
-% 
+%
 % figure;
 % subplot(1,2,1)
 % ft_topoplotER(cfg,avg_all1)
@@ -576,17 +585,17 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % subplot(1,2,2)
 % ft_topoplotER(cfg,avg_all2)
 % title ('memory')
-% 
-% 
+%
+%
 % %% ft_timelockstatistics
-% 
+%
 % idx_ctrl = find(ismember(subj, subj1));
 % idx_et = find(ismember(subj, subj2));
-% 
+%
 % avg_stats_ctrl = avg1(idx_ctrl);
 % avg_stats_et = avg1(idx_et);
 % fx_sum = @(x) nansum(cell2mat(arrayfun(@(q) size(x{q}.trial,1), 1:numel(x), 'Un', 0)));
-% 
+%
 % cfg = [];
 % cfg.channel = 'Fz';
 % cfg.method = 'montecarlo';
@@ -600,8 +609,8 @@ plot_topoplots(avg, fignum, lgnd, tit, [.55, .75])
 % cfg.ivar = 1;
 % cfg.design = [ones(1,fx_sum(avg_stats_et)), 2*ones(1,fx_sum(avg_stats_ctrl))];
 % stats_ERP = ft_timelockstatistics(cfg, avg_stats_ctrl{:}, avg_stats_et{:});
-% 
+%
 % % look for significant channels in ERP stats
 % [chans time] = find(stats_ERP.mask)
-% 
-% 
+%
+%

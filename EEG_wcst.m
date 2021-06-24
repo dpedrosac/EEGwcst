@@ -3,16 +3,10 @@
 %   for all the differentsteps in order to get the preprocessing and 
 %   the analysis of the source data
 
-restoredefaultpath                                                          % removes confounding software to avoid interaction with fielsdtrip 
-addpath('c:\Users\David\skripte\fieldtrip'); ft_defaults                                        % set feidltrip defaults
-addpath('c:\Users\David\skripte\lambda'); addpath('c:\Users\David\skripte\othercolor')                             % change folder to current folder and add a series of colorbars to plot data later
-addpath('c:\Users\David\skripte\lambda\multitaper\m\');                                            % add JSB routines for TFR analyses
+[wdir, ROOTDIR] = EEGwcst_defaults(0);
+addpath('d:\skripte\othercolor')
 
-%% general settings
-wdir = 'C:\Users\David\projekte\';                                           % (wdir) defines the working drive for the script
-save_dir = strcat(wdir, 'wcst\');
-cd(save_dir);
-
+%%
 % subj{1} = controls, subj{2} = patients
 subj{1} = [1:7, 9:14, 16:22];                                               % all available control subjects for analyses
 subj{2} = [1:3, 5:17, 21:23];
