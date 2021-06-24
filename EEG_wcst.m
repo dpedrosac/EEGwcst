@@ -3,8 +3,20 @@
 %   for all the differentsteps in order to get the preprocessing and 
 %   the analysis of the source data
 
+<<<<<<< HEAD
 [wdir, ROOTDIR] = EEGwcst_defaults(0);
 addpath('d:\skripte\othercolor')
+=======
+restoredefaultpath                                                          % removes confounding software to avoid interaction with fielsdtrip 
+addpath('d:\skripte\fieldtrip'); ft_defaults                                        % set feidltrip defaults
+addpath(genpath('d:\skripte\lambda')); addpath('d:\skripte\othercolor')                             % change folder to current folder and add a series of colorbars to plot data later
+addpath('d:\skripte\lambda\multitaper\m\');                                            % add JSB routines for TFR analyses
+
+%% general settings
+wdir = 'd:\skripte\lambda\';                                           % (wdir) defines the working drive for the script
+save_dir = strcat(wdir, 'data\');
+cd(save_dir);
+>>>>>>> beab179d0fc15269759e57e1d637962ca00d14c4
 
 %%
 % subj{1} = controls, subj{2} = patients

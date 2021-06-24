@@ -13,8 +13,12 @@ function filter_rawdata(filename_clean, filename_filtered, hpf, lpf, wdir)
 
 load(filename_clean);                                            %#ok<LOAD> % this line loads the cleaned data into workspace (for details see clean_data.m)
 data_clean.elec = ft_read_sens([wdir 'brainamp.sfp']);                      % this block assigns the standard electrode positions to the data
+<<<<<<< HEAD
 [data_clean.label,I] = sort(data_clean.label);
 data_clean.trial{1,1} = data_clean.trial{1,1}(I,:);
+=======
+data_clean = sorted_data(data_clean, 1);                                    % function to sort EEG channels alphabetically
+>>>>>>> beab179d0fc15269759e57e1d637962ca00d14c4
 
 % Do the pre-processing in two steps:
 %   (1) preprocess for the ERP estimation,
