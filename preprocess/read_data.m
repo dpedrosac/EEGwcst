@@ -52,10 +52,11 @@ for np = tolom                                                             % pro
                     continue
                 end
                 
-                cond = {'WO', 'ALC'};                                                   % different conditions, later important for saving
-                for c = 1:2                                                             % loop through differentr conditions, i.e. 1 = (WO), 2 = (ALC) condition
+                cond = {'WO', 'ALC'};                                       % different conditions, later important for saving
+                for c = 1:2                                                 % loop through differentr conditions, i.e. 1 = (WO), 2 = (ALC) condition
                     filename_final = ...
-                        strcat('datrsp_', code_participant, '_', cond{c}, '.mat');   % filename under which data will be saved in the (outdir) directiry
+                        strcat('datrsp_', code_participant, '_', ...
+                        cond{c}, '.mat');   % filename under which data will be saved in the (outdir) directiry
                     if exist(strcat(savedir, '\', filename_final), 'file')                               % if filename has already been processed, subject is skipped to save time
                         if c == 2; fprintf('subj: %s has already been processed, next subj... \n', nam); end
                         continue
@@ -66,7 +67,6 @@ for np = tolom                                                             % pro
                         
                         if ~exist(filename1, 'file')
                             fprintf('problem with data from %s, skipping. \n', nam);
-                            %                 continue;
                             keyboard;                                 % sloppy fix, as some files have really odd names, this is introduced
                         end                                                             % at this point to manually adapt names
                         
@@ -80,7 +80,7 @@ for np = tolom                                                             % pro
                         cfg = [];
                         cfg.resamplefs  = rspl_freq;                                    % resampling frequency
                         cfg.detrend     = 'no';
-                        data_rsp        = ft_resampledata(cfg, data_all); %#ok<NASGU>
+                        data_rsp        = ft_resampledata(cfg, data_all);
                         clear data_all;                                                 % clears data_all to save space on workspace
                         
                         % Saves data to pre-specified folder
@@ -110,7 +110,7 @@ for np = tolom                                                             % pro
                         
                         if ~exist(filename_raw, 'file')                     %this part of the code serves to avoid breaks, in case the file has a different name
                             fprintf('problem with data from %s, skipping. \n', nam);
-%                             continue;
+                            %                             continue;
                             keyboard;                                       % sloppy fix, as some files have really odd names, this is introduced
                         end                                                 % at this point to manually adapt names
                         
@@ -118,10 +118,10 @@ for np = tolom                                                             % pro
                         filename_header = ...
                             strcat('header_', code_participant, '_', cond{c}, '.mat');
                         
-                        hdr = ft_read_header(filename_raw); %#ok<NASGU>
+                        hdr = ft_read_header(filename_raw);
                         save(strcat(savedir, '\', filename_header), 'hdr', '-v7.3');
                         
-                        events = ft_read_event(filename_raw); %#ok<NASGU>
+                        events = ft_read_event(filename_raw);
                         save(strcat(savedir, '\', 'events_', cond{c}, '_', code_participant, ...
                             '.mat'), 'events', '-v7.3');
                         
@@ -132,9 +132,9 @@ for np = tolom                                                             % pro
                             strcat(filename_raw(1:end-4), '.vhdr');               % this just defines the orignal header file
                         cfg.trialfun                = 'ft_trialfun_general';    % this is the default
                         cfg.trialdef.eventtype      = 'Stimulus';
-                        cfg.trialdef.prestim        = .5;    % in seconds before time = 0;
+                        cfg.trialdef.prestim        = .5; % in seconds before time = 0;
                         cfg.trialdef.poststim       = 2;  % in seconds after time = 0;
-                        trialdef = ft_definetrial(cfg); %#ok<NASGU>
+                        trialdef = ft_definetrial(cfg);
                         save(strcat(savedir, '\', 'trialdef_', ...
                             code_participant,'_', cond{c}, '.mat'), 'trialdef', '-v7.3'); % saves trial data
                         

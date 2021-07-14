@@ -1,10 +1,10 @@
-function [wrong_runs, complete_runs] = select_runs(code, paths)
+function [wrong_runs, complete_runs] = select_runs(code, ROOTDIR)
 
 %   This function selects the complete runs and the ones with some sort of
 %   error; data is appended to the events_xx.mat file in the .\data
 %   directory
 
-%   Copyright (C) June 2021
+%   Copyright (C) June 2021, modified July 2021
 %   D. Pedrosa, Urs Kleinholdermann University Hospital of Gießen and Marburg
 %
 %   This software may be used, copied, or redistributed as long as it is
@@ -14,7 +14,7 @@ function [wrong_runs, complete_runs] = select_runs(code, paths)
 
 %% General settings
 events = cell(2,1);                                                         % pre-allocate space
-load_dir = fullfile(paths.data_dir, 'header_and_events');
+load_dir = fullfile(ROOTDIR, 'data', 'header_and_events');
 conds = {'WO', 'ALC'};
 warning('off','MATLAB:strrep:InvalidInputType');                            % gets rid of the warning concerning the strrep function
 wrong_runs = nan(1,2);

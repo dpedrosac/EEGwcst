@@ -11,21 +11,23 @@ function stats_and_results
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
+
 %% General settings and indices to use later in the analyses
-paths   = local_paths;                                                      % load paths, set fieldtrip paths
+[~, ROOTDIR] = EEGwcst_defaults; 
 subj1   = [3,4,5,7,8,10,13,14,16,18,19,20,21, 22,23,24,42,44,45];           % ET-Patients
 subj2   = [1,2,27,28,29,30,32,35,36,37,38,39,41,43,46,47,48,49,50];         % CTRL-subjects
 
-load(fullfile(paths.data_dir, 'patdat.mat'));                    %#ok<LOAD> % load metadata
+load(fullfile(ROOTDIR, 'data', 'patdat.mat'));                   %#ok<LOAD> % load metadata
 
 subj1cll = []; subj2cll = [];                                               % clear variables from workspace
-for m = 1:numel(subj1); subj2cll{m} = strcat('s', num2str(subj2(m))); end
+for m = 1:numel(subj1); subj1cll{m} = strcat('s', num2str(subj1(m))); end
 idx_et = find(ismember({patient.code}, subj1cll));
-for m = 1:numel(subj2); subj1cll{m} = strcat('s', num2str(subj1(m))); end   %#ok<*AGROW> % create a cell array to compare the codes in control/patient with the data of the subjects
+for m = 1:numel(subj2); subj2cll{m} = strcat('s', num2str(subj2(m))); end   %#ok<*AGROW> % create a cell array to compare the codes in control/patient with the data of the subjects
 idx_ctrl = find(ismember({control.code}, subj2cll));
+
 
 %% First results come from the general data and two ANOVAS for the effects
 % of alcohol on the amount of two distinct errors and the effect of alcohol
 % on two different repsonse times
 
-errors_stats(control(idx_ctrl),patient(idx_et),subj1, subj2, paths)
+errors_stats(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR)

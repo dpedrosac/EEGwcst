@@ -1,4 +1,4 @@
-function filter_rawdata(filename_clean, filename_filtered, hpf, lpf, wdir)
+function filter_rawdata(filename_clean, filename_filtered, hpf, lpf, wdir, outdir)
 
 %   This function filters the data according to the settings provided as a
 %   step of the preprocessing routine
@@ -12,13 +12,8 @@ function filter_rawdata(filename_clean, filename_filtered, hpf, lpf, wdir)
 %   warranties whatsoever.
 
 load(filename_clean);                                            %#ok<LOAD> % this line loads the cleaned data into workspace (for details see clean_data.m)
-data_clean.elec = ft_read_sens([wdir 'brainamp.sfp']);                      % this block assigns the standard electrode positions to the data
-<<<<<<< HEAD
-[data_clean.label,I] = sort(data_clean.label);
-data_clean.trial{1,1} = data_clean.trial{1,1}(I,:);
-=======
-data_clean = sorted_data(data_clean, 1);                                    % function to sort EEG channels alphabetically
->>>>>>> beab179d0fc15269759e57e1d637962ca00d14c4
+data_clean.elec = ft_read_sens([wdir 'brainamp_montage.sfp']);              % this block assigns the standard electrode positions to the data
+data_clean = sorted_data(data_clean, 0);                                    % function to sort EEG channels alphabetically
 
 % Do the pre-processing in two steps:
 %   (1) preprocess for the ERP estimation,
@@ -44,4 +39,6 @@ cfg.hpfreq      = hpf(2);                                                   % cu
 cfg.plotfiltresp= 'no';
 data_preproc{2} = ft_preprocessing(cfg, data_clean);
 
-save(strcat(outdir, filename_filtered), 'data_preproc', '-v7.3');           % saves the preprocessed EEG to a file
+data_preproc = arrayfun(@(q) ft_struct2single(data_preproc{q}), ...
+    1:numel(data_preproc), 'Un', 0);
+save(fullfile(outdir, filename_filtered), 'data_preproc', '-v7.3');           % saves the preprocessed EEG to a file

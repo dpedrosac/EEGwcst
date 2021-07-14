@@ -1,9 +1,8 @@
-function errors_stats(control, patient, subj1, subj2, paths)
+function errors_stats(control, patient, subj1, subj2, ROOTDIR)
 
-%   This function selects the correct trials, changes the metadata and
-%   reports on errors including statistics
+%   XXX
 
-%   Copyright (C) June 2021
+%   Copyright (C) June 2021, modified July 2021
 %   D. Pedrosa, Urs Kleinholdermann University Hospital of Gießen and Marburg
 
 %   This software may be used, copied, or redistributed as long as it is
@@ -12,11 +11,11 @@ function errors_stats(control, patient, subj1, subj2, paths)
 %   warranties whatsoever.
 
 %%
-cd(paths.data_dir)
+cd(ROOTDIR)
 idx = {[1:numel(patient)],[1:numel(control)]};
 
-%% Estinate reaction times for all subjects
-rt_all = rtimes_trials(subj2, subj1, paths);                                % uses a different script to extract the response times for the differentv trials;
+%% Estimate reaction times for all subjects
+rt_all = rtimes_trials(subj2, subj1, ROOTDIR);                              % uses a different script to extract the response times for the differentv trials;
 %%  ==============================================================   %%
 % rt_all consists of two cells (CTRL{1} vs. ET{2}) with four columns:
 %   - shift-wo reaction times
@@ -38,16 +37,18 @@ for g = 1:2 % loop through groups (1) ET-patients, (2) control subjects
 
     fprintf('estimating wrong runs for group %s \n', num2str(g));
     
-    p = progressbar( numel(mta_dat), 'percent' );                            % JSB routine for progress bars
+    p = progressbar( numel(mta_dat), 'percent' );                           % JSB routine for progress bars
     for k = 1:numel(mta_dat) % subj. per group for individual results
         p.update( k )
-        [tmp, c] = select_runs(mta_dat(k).code, paths);                  % obtains the error counts from the events-files
+        [tmp, c] = select_runs(mta_dat(k).code, ROOTDIR);                   % obtains the error counts from the events-files
         wrong_runs{g} = [wrong_runs{g}; tmp];
         complete_runs{g} = [complete_runs{g}; c];
     end
     p.stop();
     data{g} = mta_dat;
 end
+
+fprintf("====\nWrong runs have been marked and saved to ./data/header_and_events/events_xx.mat\n====\n")
 
 create_tableOne(data, ...
     arrayfun(@(q) [[rt_all{q}(:,1); rt_all{q}(:,3)], ...

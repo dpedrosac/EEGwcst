@@ -1,4 +1,4 @@
-function preprocess_data(subj, ROOTDIR, type)
+function preprocess_data(subj, ROOTDIR, wdir, type)
 
 %   This function does all necessary preprocessing steps in order to get
 %   all further analyses ready
@@ -15,13 +15,12 @@ function preprocess_data(subj, ROOTDIR, type)
 %% General settings
 cd(ROOTDIR);
 loaddir     = [ROOTDIR '\data\'];
-load([loaddir '\patdat.mat']);                                              % this file loads the meta data
+load([loaddir '\patdat.mat']);                                  %#ok<LOAD>  % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else tolom = subj{1}; end            % selects whether (p) pateints or controls (c) are analysed (see (type))
 
-steps2apply = 3;                                                            % three steps available: (1):
-frsp        = 5000/200;                                                     % factor at which data was resampled
+steps2apply = 1;                                                            % three steps available: (1):
 type_calc   = 'erp';
-outdir = fullfile(loaddir, 'data_merged');                                  % directory at which data will be saved
+outdir = fullfile(wdir, 'data_merged');                                     % directory at which data will be saved
 if ~exist(outdir, 'dir'); mkdir(outdir); end
 
 for np = tolom % loop through all subjects of one group
@@ -41,6 +40,7 @@ for np = tolom % loop through all subjects of one group
             case 1 % start filtering data
                 hpf     = [.1 3];                                           % high-pass filter frequency
                 lpf     = 30;
+                inputdir= fullfile(wdir, 'cleaned');
                 
                 filename_clean = {strcat('datclean_', code_participant, '_WO.mat'), ...
                     strcat('datclean_', code_participant, '_ALC.mat')};
@@ -48,14 +48,15 @@ for np = tolom % loop through all subjects of one group
                     strcat('datpreproc_', code_participant, '_ALC.mat')};
                 
                 for c = 1:2 % loop through both conditions
-                    if exist(strcat(outdir, filename_preproc{c}), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    if exist(strcat(outdir, filename_preproc{c}), 'file')   % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                         fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_participant )
                         continue
                     else
-                        filter_rawdata(filename_clean{c}, ...
-                            filename_preproc{c}, hpf, lpf, datadir)
+                        filter_rawdata(fullfile(inputdir, filename_clean{c}), ...
+                            filename_preproc{c}, hpf, lpf, ROOTDIR, outdir)
                     end
                 end
+                
             case 2 % rereference data to "average electrode" and cut
                 filename_clean = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
                     strcat('datpreproc_', code_participant, '_ALC.mat')};
@@ -69,10 +70,10 @@ for np = tolom % loop through all subjects of one group
                     epoch_trials(filename_clean, filename_save, code_participant, wdir, idx_file)
                 end
                 
-            case 3 % this step extracts the badtrials and removes them from data; in case not yet identified, data is plotted
-                
-                % Defines the filename from where data is loaded (filename_epoched) and
-                % where/what filename to save
+            case 3 % this step extracts the badtrials and removes them 
+                % from data; in case not yet identified, data is plotted
+                % Defines the filename from where data is loaded 
+                % (filename_epoched) and where/what filename to save
                 
                 switch type_calc
                     case 'erp'
@@ -84,11 +85,7 @@ for np = tolom % loop through all subjects of one group
                         filename_epoched = strcat('data_merged_TFR_', code_participant, '.mat');
                         idx_file = 2;
                 end
-                <<<<<<< HEAD
                 
-                =======
-                
-                >>>>>>> beab179d0fc15269759e57e1d637962ca00d14c4
                 if exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                     fprintf('\nremoving badtrials for %s already done, continuing with next step ...\n', code_participant )
                     continue
@@ -158,7 +155,7 @@ for np = tolom % loop through all subjects of one group
                     cfg = [];
                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
                         trial_count(bad_trials));
-                    data_final = ft_selectdata(cfg, data_merged); %#ok<NASGU>
+                    data_final = ft_selectdata(cfg, data_merged); 
                     
                     save(strcat(outdir, filename_final), ...
                         'data_final', '-v7.3');                    % saves the merged EEG and acc data -to one file

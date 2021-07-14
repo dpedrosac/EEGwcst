@@ -1,4 +1,4 @@
-function rt_subj = rtimes_trials(subj1, subj2, paths)
+function rt_subj = rtimes_trials(subj1, subj2, ROOTDIR)
 
 %   This function estimates the response times after a repeat trial or a
 %   "shift trial" plots the results and provides a table to run ANOVAE if
@@ -13,7 +13,7 @@ function rt_subj = rtimes_trials(subj1, subj2, paths)
 %   warranties whatsoever.
 
 %% General settings
-event_dir = fullfile(paths.data_dir, 'header_and_events');
+event_dir = fullfile(ROOTDIR, 'data', 'header_and_events');
 conds = {'WO', 'ALC'};                                                      % two different conditions available
 trls2est = {[10, 20], 21:25};                                               % different trials to estimate; thereby 10/20 is the code for the tone indicating a shifting error and 21:25 is the code for a right answer
 lims_outliers = [.2 10];                                                    % limits at which data is considered wrong/artifact
