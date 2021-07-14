@@ -4,7 +4,7 @@ function rt_subj = rtimes_trials(subj1, subj2, ROOTDIR)
 %   "shift trial" plots the results and provides a table to run ANOVAE if
 %   wanted
 
-%   Copyright (C) March 2018, modified June 2021
+%   Copyright (C) March 2018, modified June 2021 and July 2021
 %   D. Pedrosa, University Hospital of Gieﬂen and Marburg
 
 %   This software may be used, copied, or redistributed as long as it is
@@ -18,10 +18,10 @@ conds = {'WO', 'ALC'};                                                      % tw
 trls2est = {[10, 20], 21:25};                                               % different trials to estimate; thereby 10/20 is the code for the tone indicating a shifting error and 21:25 is the code for a right answer
 lims_outliers = [.2 10];                                                    % limits at which data is considered wrong/artifact
 
-%% Start estimating response times accordoing to trial of interest
-for g = 1:2 % loop through both groups (CTRL-subj, ET-patients)
+%% Start estimating response times according to trial of interest
+for g = 1:2 % loop through both groups (ET-patients, CTRL-subj)
     if g == 1; sjts = subj1; else; sjts = subj2; end                        % gets a list for either CTRL-subj. or ET-patients, depending on the variable (g)
-    for k = 1:numel(trls2est); rt_tmp{1,k} = {[], []}; end      %#ok<AGROW> % pre-allocate space, so that it may be filled with data later
+    for k = 1:numel(trls2est); rt_tmp{1,k} = {[], []}; end                  % pre-allocate space, so that it may be filled with data later
     
     for s = 1:numel(sjts) % loop through subjects
         for c = 1:numel(conds) % loop through available conditions
@@ -51,11 +51,11 @@ for g = 1:2 % loop through both groups (CTRL-subj, ET-patients)
             end
         end
     end
-    if g == 1; rt_ctrl = rt_tmp; else; rt_et = rt_tmp; end                  % saves data to either CTRL or ET structure.
+    if g == 1; rt_et = rt_tmp; else; rt_ctrl = rt_tmp; end                  % saves data to either CTRL or ET structure.
 end
-%
+
 %% Plot results
-figure(94); hold on;
+figure(101); hold on;
 p = figure_params_gen;                                                      % load general parameters for plots
 fx_plots = {@(x) nanmean(x), ...                                            % plots of mean and SEM
     @(x) (nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
@@ -66,7 +66,7 @@ fx_outliers = @(x) x(x > lims_outliers(1) & x < lims_outliers(2));
 offset  = .07;                                                               % length of the whiskers
 sb      = [1,1.5,3,3.5];                                                     % plot order for the data structure
 clrs    = {p.colors{4}, p.colors{1}};
-leg     = {'CTRL-subj.', 'ET-patients'};
+leg     = {'ET-patients', 'CTRL-subjects'};
 
 % Start plotting
 for c = 1:numel(conds) % loop through conditions and create subplots for both
@@ -74,7 +74,7 @@ for c = 1:numel(conds) % loop through conditions and create subplots for both
     for k = 1:numel(trls2est) % loop through different trials
         for g = 1:2 % loop through both groups
             iter = iter +1;
-            if g == 1; rt_all = rt_ctrl; else; rt_all = rt_et; end
+            if g == 1; rt_all = rt_et; else; rt_all = rt_ctrl; end
             dat{g} = fx_outliers(rt_all{1,k}{c}(:,1)); %#ok<*AGROW>
             
             sjts_idx = unique(rt_all{1,k}{c}(:,2));                         % number of subjects, needed to aggregate means of data
@@ -109,8 +109,7 @@ legend(b([1,2]), leg)                                                       % ad
 
 %% Put data together as a table
 dat = []; iter = 0;
-
-for g = 1:2 % loop through the groups
+for g = 1:2 % loop through groups
     if g == 1; rtall = rt_et; else; rtall = rt_ctrl; end
     sjts = unique(rtall{1}{1,c}(:,2));
     for s = 1:numel(sjts)
@@ -128,18 +127,16 @@ end
 tbl_anova = table(dat(:,1), dat(:,2),dat(:,3),dat(:,4),dat(:,5),dat(:,6));
 tbl_anova.Properties.VariableNames = ...
     {'ID', 'subj', 'group', 'rt', 'cond', 'error'};
-writetable(tbl_anova, fullfile(paths.data_dir, ...
+writetable(tbl_anova, fullfile(ROOTDIR, 'data', ...
     'anova_rtimes_error.txt'), 'Delimiter', '\t');
 
 %% Create data for different groups
 dattemp = {};
 fx_outliers = @(x) x(x>.2 & x < 10);
-% rt_ctrl/rt_et consists of two cells: wo and with alcohol with two
-% columns, shift errors (:,1) vs. repeat trials (:,2)
 
 for g = 1:2 % loop through both groups
     iter = 0;
-    if g == 1; rt_all = rt_ctrl; else; rt_all = rt_et; end
+    if g == 1; rt_all = rt_et; else; rt_all = rt_ctrl; end
     for k = 1:numel(trls2est) % loop through different trials
         for c = 1:2 % loop through conditions and create matrix in cell
             iter = iter +1;
@@ -155,30 +152,3 @@ for g = 1:2 % loop through both groups
         end
     end
 end
-
-% dat_plot{1} = [dat_ttest{2}(:,1:2), dat_ttest{1}(:,1:2)];
-% dat_plot{2} = [dat_ttest{2}(:,3:4), dat_ttest{1}(:,3:4)];
-%
-% plot_rt_anova(dat_plot, 90, 1);
-%
-%
-% %% Correlation between reaction time and PSP?
-% trunc = fullfile(wdir, 'wcst\');
-% file_start = 'ERP_rightWO_';
-% rt_tot = [];
-% sjt = subj;
-% for k = 1:numel(sjt)
-%     suffix = strcat('S', num2str(sjt(k)));
-%     filename = strcat(trunc, suffix, '\', file_start, suffix, '.mat');
-%     load(filename);
-%     tme = [.25 .45];
-%     toi = dsearchn(ERP_avg.time', tme');
-%     ch = find(strcmp(ERP_avg.label, 'Pz'));
-%
-%     idx = find(dat(:,1) == sjt(k) & dat(:,5) == 1 & dat(:,6) >=6);
-%     tmp = [sjt(k), nanmean(dat(idx,4)), nanmean(nanmean(ERP_avg.trial(:,ch,toi(1):toi(2)),3))];
-%     rt_tot = [rt_tot; tmp];
-% end
-%
-% figure
-% scatter(rt_tot(:,2), rt_tot(:,3))

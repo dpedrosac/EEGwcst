@@ -26,28 +26,37 @@ for c = 1:2 % loops through the two different conditions
     load(filename_events)   %#ok<LOAD> % loads the data
     
     %% Description: =========================================   %%
-    % According to Bareceló et al. (1999/2003), only completed
+    %   According to Barceló et al. (1999/2003), only completed
     %   trials should be used for ERP analyses. Therefore it is
     %   necessary to mark trials in which some error occurred;
     
-    incorrect = zeros(numel(events),1);                                                 % create new value fror structure
+    incorrect = zeros(numel(events),1);                                     % create new value fror structure
     S1 = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
-        {events(:).value}, 'Uniform', 0), 'S1'));                   % gets the first trial of every repetition
+        {events(:).value}, 'Uniform', 0), 'S1'));                           % gets the first trial of every repetition
+    
     iter = 0;
-    for m = 1:numel(S1)-1                                           % run though one run andlook for errors
-        events_temp = {events(S1(m):S1(m+1)).value};
+    for m = 1:numel(S1)                                                   % run though one run andlook for errors
+        if m < numel(S1)
+            events_temp = {events(S1(m):S1(m+1)).value};
+        else
+            events_temp = {events(S1(m):end).value};
+        end
         error = find(strcmp(cellfun(@(x) strrep(x,' ', ''), ...
             events_temp, 'Uniform', 0), 'S40') | ...
             strcmp(cellfun(@(x) strrep(x,' ', ''), ...
             events_temp, 'Uniform', 0), 'S50'), 1);
         if ~isempty(error)
             iter = iter + 1;
-            incorrect(S1(m):S1(m+1)) = iter;
+            if m < numel(S1)
+                incorrect(S1(m):S1(m+1)) = iter;
+            else
+                incorrect(S1(m):end) = iter;
+            end
         end
         temp = num2cell(incorrect);
         [events.incomplete] = temp{:};
     end
-    save(filename_events, 'events', '-v7.3')
+    save(filename_events, 'events', '-v7.3') % saves updated data 
     wrong_runs(1,c) = max(incorrect);
     complete_runs(1,c) = numel(S1);
 end

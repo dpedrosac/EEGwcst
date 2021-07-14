@@ -1,6 +1,6 @@
 function stats_and_results
 
-%   this function runs all analyses for demographics, reaction times and
+%   This function runs all analyses for demographics, reaction times and
 %   different errors between the two groups (CTRL-subjects and ET-patients)
 
 %   Copyright (C) January 2018, modified June 2021
@@ -10,7 +10,6 @@ function stats_and_results
 %   not sold and this copyright notice is reproduced on each copy made.
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
-
 
 %% General settings and indices to use later in the analyses
 [~, ROOTDIR] = EEGwcst_defaults; 
@@ -26,8 +25,7 @@ for m = 1:numel(subj2); subj2cll{m} = strcat('s', num2str(subj2(m))); end   %#ok
 idx_ctrl = find(ismember({control.code}, subj2cll));
 
 
-%% First results come from the general data and two ANOVAS for the effects
-% of alcohol on the amount of two distinct errors and the effect of alcohol
-% on two different repsonse times
+%% First results come from the general data, the reaction times and the 
+% number of total errors
 
-errors_stats(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR)
+results_1(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR)
