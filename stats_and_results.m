@@ -12,9 +12,9 @@ function stats_and_results
 %   warranties whatsoever.
 
 %% General settings and indices to use later in the analyses
-[~, ROOTDIR] = EEGwcst_defaults; 
-subj1   = [3,4,5,7,8,10,13,14,16,18,19,20,21, 22,23,24,42,44,45];           % ET-Patients
-subj2   = [1,2,27,28,29,30,32,35,36,37,38,39,41,43,46,47,48,49,50];         % CTRL-subjects
+[wdir, ROOTDIR] = EEGwcst_defaults; 
+subj1   = [3,4,5,7,8,10,13,14,18,19,20, 22,23,24,42,44,45]; %21, 16 removed          % ET-Patients
+subj2   = [1,2,27,28,29,30,32,35,36,37,38,39,41,43,46,47,50]; %48,49        % CTRL-subjects
 
 load(fullfile(ROOTDIR, 'data', 'patdat.mat'));                   %#ok<LOAD> % load metadata
 
@@ -27,5 +27,9 @@ idx_ctrl = find(ismember({control.code}, subj2cll));
 
 %% First results come from the general data, the reaction times and the 
 % number of total errors
-
 results_1(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR)
+
+%% Second results, ERP comparisons between both groups
+results_2(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR, wdir)
+
+

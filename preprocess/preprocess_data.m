@@ -1,9 +1,10 @@
 function preprocess_data(subj, ROOTDIR, wdir, type)
 
 %   This function does all necessary preprocessing steps in order to get
-%   all further analyses ready
+%   all further analyses ready, that is filtering, epoching and removing
+%   bad trials
 
-%   Copyright (C) December 2017
+%   Copyright (C) December 2017, modified July 2021
 %   D. Pedrosa, University Hospital of Gieﬂen and Marburg
 
 %   This software may be used, copied, or redistributed as long as it is
@@ -11,45 +12,41 @@ function preprocess_data(subj, ROOTDIR, wdir, type)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
-
 %% General settings
 cd(ROOTDIR);
 loaddir     = [ROOTDIR '\data\'];
 load([loaddir '\patdat.mat']);                                  %#ok<LOAD>  % this file loads the meta data
-if strcmp(type, 'p'); tolom = subj{2}; else tolom = subj{1}; end            % selects whether (p) pateints or controls (c) are analysed (see (type))
-
-steps2apply = 1;                                                            % three steps available: (1):
+if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
+steps2apply = 3;                                                            % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
 type_calc   = 'erp';
-outdir = fullfile(wdir, 'data_merged');                                     % directory at which data will be saved
-if ~exist(outdir, 'dir'); mkdir(outdir); end
 
 for np = tolom % loop through all subjects of one group
-    if strcmp(type, 'p')
-        disp(['the patient actually being computed is ' patient(np).name]); % this line provides the patient currently being analyzed in the command window
-        code_participant = upper(patient(np).code);                         % relevant information for later in the next few lines
-        bad_trials = patient(np).badtrials;
-    else
-        disp(['the subject actually being computed is ' control(np).name]); % this line provides the patient currently being analyzed in the command window
-        code_participant = upper(control(np).code);                         % relevant information for later in the next few lines
-        bad_trials = control(np).badtrials;
-    end
+    temp = control; seq = 'subject';
+    if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
+    fprintf('the %s actually being computed is %s\n', seq, temp(np).name)
+    code_parti = upper(temp(np).code);                                      % relevant information for later in the next few lines
+    bad_trials = temp(np).badtrials;
     
-    %% Starts with the different steps available (see general settings)
-    for steps = steps2apply % loop through all steps to to (see general settings)
+    %% Starts with different steps available (see General settings above)
+    for steps = steps2apply
         switch (steps)
-            case 1 % start filtering data
+            case 1 % Filter data, output is struct with filtered data for {1} erp- and {2} tfr-analyses
                 hpf     = [.1 3];                                           % high-pass filter frequency
                 lpf     = 30;
                 inputdir= fullfile(wdir, 'cleaned');
+                outdir = fullfile(wdir, 'data_cleaned');                    % directory at which data will be saved
+                if ~exist(outdir, 'dir'); mkdir(outdir); end
                 
-                filename_clean = {strcat('datclean_', code_participant, '_WO.mat'), ...
-                    strcat('datclean_', code_participant, '_ALC.mat')};
-                filename_preproc = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
-                    strcat('datpreproc_', code_participant, '_ALC.mat')};
+                filename_clean = ...
+                    {strcat('datclean_', code_parti, '_WO.mat'), ...
+                    strcat('datclean_', code_parti, '_ALC.mat')};
+                filename_preproc = ...
+                    {strcat('datpreproc_', code_parti, '_WO.mat'), ...
+                    strcat('datpreproc_', code_parti, '_ALC.mat')};
                 
                 for c = 1:2 % loop through both conditions
                     if exist(strcat(outdir, filename_preproc{c}), 'file')   % the next few lines check if data is already present and skips further processing if so to avoid redundancy
-                        fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_participant )
+                        fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_parti )
                         continue
                     else
                         filter_rawdata(fullfile(inputdir, filename_clean{c}), ...
@@ -57,110 +54,153 @@ for np = tolom % loop through all subjects of one group
                     end
                 end
                 
-            case 2 % rereference data to "average electrode" and cut
-                filename_clean = {strcat('datpreproc_', code_participant, '_WO.mat'), ...
-                    strcat('datpreproc_', code_participant, '_ALC.mat')};
-                filename_epoched = fullfile(outdir, ...
-                    sprintf('data_merged_%s.mat', type_calc));
+            case 2 % cut data to relevant chunks and merge conditions                
+                outdir = fullfile(wdir, 'data_merged');                     % directory at which data will be saved
+                if ~exist(outdir, 'dir'); mkdir(outdir); end
                 
-                if ~exist(filename_epoched, 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
-                    fprintf('\nepoching for %s already done, continuing with next step ...\n', code_participant )
+                filename_clean = ...
+                    {strcat('datpreproc_', code_parti,'_WO.mat'), ...
+                    strcat('datpreproc_', code_parti, '_ALC.mat')};
+                filename_save = fullfile(outdir, ...
+                    sprintf('data_merged_%s_%s.mat', type_calc, code_parti));
+                
+                if exist(filename_save, 'file')  % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    fprintf('\nepoching for %s already done, continuing with next step ...\n', code_parti )
                     continue
                 else
-                    epoch_trials(filename_clean, filename_save, code_participant, wdir, idx_file)
+                    epoch_trials(filename_clean, filename_save, ...
+                        code_parti, wdir, ROOTDIR, type_calc)
                 end
                 
-            case 3 % this step extracts the badtrials and removes them 
-                % from data; in case not yet identified, data is plotted
-                % Defines the filename from where data is loaded 
-                % (filename_epoched) and where/what filename to save
+            case 3 % remove badtrials (after identifying them if necessary)
+                inputdir = fullfile(wdir, 'data_merged');                   % directory data will be loaded from
+                outdir = fullfile(wdir, 'data_final');                      % directory at which data will be saved
+                filename_final = sprintf('data_final_%s_%s.mat', ...
+                    type_calc, code_parti);
+                filename_epoched = sprintf('data_merged_%s_%s.mat', ...
+                    type_calc, code_parti);
                 
-                switch type_calc
-                    case 'erp'
-                        filename_final = strcat('data_final_', code_participant, '.mat');
-                        filename_epoched = strcat('data_merged_', code_participant, '.mat');
-                        idx_file = 1;
-                    case 'tfr'
-                        filename_final = strcat('data_final_TFR_', code_participant, '.mat');
-                        filename_epoched = strcat('data_merged_TFR_', code_participant, '.mat');
-                        idx_file = 2;
-                end
-                
-                if exist(strcat(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
-                    fprintf('\nremoving badtrials for %s already done, continuing with next step ...\n', code_participant )
+                if exist(fullfile(outdir, filename_final), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    fprintf('\nremoving badtrials for %s already done, continuing with next step ...\n', code_parti )
                     continue
                 else
-                    load(fullfile(outdir, filename_epoched));            % this line loads the cleaned data into workspace (for details see clean_data.m)
+                    load(fullfile(inputdir, filename_epoched)); %#ok<LOAD>  % this line loads the cleaned data into workspace (for details see clean_data.m)
                     
-                    % The next few lines are intended to remove
-                    % anticipations or "bad blocks"
                     idx_fst = [1, 101];                                     % trialinfo that marks the beginning of a new block
                     idx_fstrl = []; clear tmp_trials                        % initialise variable to fill with content during loop
                     for c = 1:numel(idx_fst) % loop through both "conditions"
                         idx_fstrl = [idx_fstrl; ...                         % creates a vector of "first trials"
-                            find(data_merged.trialinfo == idx_fst(c))]; %#ok<AGROW>
+                            find(data_merged.trialinfo == idx_fst(c))];
                     end
-                    idx_bad = remove_badblocks(data_merged, idx_fstrl, ...  % this sctipt reads out the anticipation errors and discards the entire block of these
-                        code_participant);                                  % furthermore trial errors are read out and indexed (in total a variable (idx_bad) is created
                     
-                    idx9131 = [];                                           % every experiment started with the combination of code 91 and 31, so this is identified and later added to the idx_bad
-                    idx9131 = [idx9131; strfind(data_merged.trialinfo.', [91 31]); ...
-                        [strfind(data_merged.trialinfo.', [91 31])+1]]; %#ok<AGROW,NBRAK>
-                    idx9131 = [idx9131; strfind(data_merged.trialinfo.', [191 131]); ...
-                        [strfind(data_merged.trialinfo.', [191 131])+1]]; %#ok<AGROW,NBRAK>
+                    % Remove bad trials and 91/31 trials
+                    idx_bad = [];
+                    start_signal = [91, 191];                               % per default, every recording starts with a combination of '91/31 trials'
+                    for b = 1:numel(start_signal)
+                        idx_bad = [idx_bad; ...
+                            find(data_merged.trialinfo==start_signal(b))];
+                        idx_bad = [idx_bad; ...
+                            find(data_merged.trialinfo==start_signal(b))+1];% necessary as code: '31' is ambiguous (start code *and* code of certain trials in MCST)
+                    end
+                    idx_bad = [idx_bad; find(data_merged.trialinfo>1000)];  %#ok<*AGROW>
                     
-                    % Remove blocks with anticipation or errors from merged
-                    % file
                     cfg = [];
                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
-                        [idx9131; idx_bad]);
+                        idx_bad);
                     data_merged = ft_selectdata(cfg, data_merged);
                     
-                    if isempty(bad_trials) % if the bad trials are not yet identified, this part of the code plots all trials in order to search for bad ones
-                        
-                        idx = [{1:7}, {101:107}];                               % code at which a new trial was initiaded (from which ERPs will be estimated later)
-                        idx_trl = []; clear tmp_trials                          % initialise variable to fill with content during loop
-                        for c = 1:numel(idx)
-                            tmp_trials = ismember(data_merged.trialinfo, idx{c});
-                            idx_trl = [idx_trl; find(tmp_trials)];
-                            clear tmp_trials
+                    % Remove bad trials after eyeballing (if necessary)
+                    if isempty(bad_trials) % if bad trials not yet identified, this plots all trials in order to check 'visually'
+                        [bc, bad_trials] = plot_relevant_trials(data_merged);
+                        if strcmp(type, 'p')
+                            patient(np).badtrials = bad_trials;
+                            patient(np).badchannels{1} = ...
+                            unique([patient(np).badchannels{1}, bc{1:end-1}]);
+                        else
+                            control(np).badtrials = bad_trials;
+                            control(np).badchannels{1} = ...
+                            unique([control(np).badchannels{1}, bc{1:end-1}]);
                         end
-                        
-                        %% Start plotting
-                        cfg = [];
-                        cfg.trials = idx_trl;                               % select only the trials that are useful for detecting artifacts
-                        data_plot = ft_selectdata(cfg,data_merged);
-                        
-                        cfg = [];                           % and after interpolation of artefact channels
-                        cfg.channel                 = 'EEG';
-                        cfg.viewmode                = 'vertical';
-                        cfg.preproc.bpfilter        = 'yes';                        % filtering and pre-processing of the data
-                        cfg.preproc.bpfreq          = [4 70];
-                        cfg.preproc.bsfilter        = 'yes';                        % filtering and pre-processing of the data
-                        cfg.bsfreq                  = [48 52];
-                        cfg.preproc.demean          = 'yes';
-                        cfg.preproc.detrend         = 'yes';
-                        cfg.layout                  = 'eeg1005.lay';                % specifies the layout file that should be used for plotting
-                        ft_databrowser(cfg, data_plot)
-                        keyboard
-                        % at this point, the bad trials should be entered and
-                        % aves to the patdat.m file
-                        
-                        clear data_plot
+                        save(fullfile(ROOTDIR, 'data', 'patdat.mat'),...    % save new patdat.mat file with metadata
+                            'control', 'patient', '-v7.3');
                     end
                     
-                    trial_count = 1:3:numel(data_merged.trialinfo);         % because the badtrials are checked on the reduced list, this vector is necessary to remove the "right" trials in a later step
-                    
-                    % Remove blocks with anticipation or errors from merged file
                     cfg = [];
                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
-                        trial_count(bad_trials));
-                    data_final = ft_selectdata(cfg, data_merged); 
-                    
-                    save(strcat(outdir, filename_final), ...
-                        'data_final', '-v7.3');                    % saves the merged EEG and acc data -to one file
-                    
+                        bad_trials);
+                    data_final = ft_selectdata(cfg, data_merged);
+                    data_final = ft_struct2single(data_final);
+                    save(fullfile(outdir, filename_final), ...
+                        'data_final', '-v7.3');                             % saves the cleaned EEG data to one file
                 end
         end
-    end
+   end
+end
+
+end
+
+function [bc, bt] = plot_relevant_trials(data_merged)
+%% This function is just a helper to cut data and plot everything according
+% to the trials saved in the trialdef file
+frsp = 5000/data_merged.fsample;
+
+idx = [{21:27}, {121:127}];                           % code at which a new trial was initiated (from which ERPs will be estimated later)
+idx_trl = []; clear tmp_trials                      % initialise variable to fill with content during loop
+for c = 1:numel(idx)
+    tmp_trials = ismember(data_merged.trialinfo, idx{c});
+    idx_trl = [idx_trl; find(tmp_trials)]; clear tmp_trials
+end
+
+cfg = [];
+cfg.trials = idx_trl;                                                       % select only the trials that are useful for detecting artifacts
+data_plot = ft_selectdata(cfg,data_merged);
+data_plot.sampleinfo(:,1) = [1:length(data_plot.sampleinfo)].'.*1000;       % as two different conditions were "merged", a new definition of
+data_plot.sampleinfo(:,2) = data_plot.sampleinfo(:,1)+500;                  % sampleinfo is included here so that ft_databrowser doesn't crash
+
+data_merged.sampleinfo(:,1) = [1:length(data_merged.sampleinfo)].'.*1000;       % as two different conditions were "merged", a new definition of
+data_merged.sampleinfo(:,2) = data_merged.sampleinfo(:,1)+500;                  % sampleinfo is included here so that ft_databrowser doesn't crash
+
+
+% Start plotting data stacked 'vertically'
+cfg = [];
+cfg.channel         = 1:42;%'EEG';                                          % only EEG channels are plotted, to obtain approximately equal number of channels, the first 42 are selected
+cfg.viewmode        = 'vertical';                                           % display data vertically
+cfg.yaxis           = [-1 1].*40;                                           % scale of y-axis (arbitrary)
+cfg.preproc.bpfilter= 'yes';                                                % band-pass filter settings in the next two lines
+cfg.preproc.bpfreq  = [4 80];
+cfg.preproc.bsfilter= 'yes';                                                % band-stop filter settings in the next two lines (notch filter for 50Hz noise)
+cfg.preproc.bsfreq  = [48 52];
+cfg.preproc.demean  = 'yes';                                                % de-mean data
+cfg.preproc.detrend = 'yes';                                                % detrend data
+%cfg.blocksize       = 25;                                                   % no. of seconds to display
+cfg.layout          = 'eeg1005.lay';                                        % specifies the layout file that should be used for plotting
+
+cfg.datafile = data_plot;
+ft_databrowser(cfg, data_plot);
+
+cfg.datafile = data_merged;
+cfg.blocksize = 2.5;
+ft_databrowser(cfg, data_merged);
+
+% Displayed/select channels with artefacts according to some metric
+cfg = [];
+cfg.method      = 'summary';
+cfg.metric      = 'zvalue';
+cfg.channel     = 'EEG';
+cfg.keepchannel = 'nan';                                                    % replacing "bad channels" with nan makes it easier to idetify them later
+cfg.keeptrial   = 'nan';                                                    % replacing "bad channels" with nan makes it easier to idetify them later
+dummy           = ft_rejectvisual(cfg, data_merged);
+
+% Select bad trials according to 'ft_rejectvisual routine and save them
+bt = find(cell2mat(arrayfun(@(q) all(isnan(dummy.trial{q}(:))), ...
+    1:numel(dummy.trial), 'Un', 0)));
+bc_select = ...
+    find(any(isnan(cat(2,dummy.trial{setdiff(1:numel(dummy.trial), bt)})),2));
+bc = {dummy.label{bc_select}}; %#ok<FNDSB>
+
+prompt  = sprintf('Please take a minute to verify the results;\nbad trials:\t%s,\nbad channels:\t%s', ...
+    regexprep(num2str(bt),'\s+',','), strjoin(bc,', '));
+waitfor(warndlg(prompt, 'Warning'));
+keyboard
+close all
 end

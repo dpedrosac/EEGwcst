@@ -8,7 +8,7 @@ addpath('d:\skripte\othercolor')
 %%
 % subj{1} = controls, subj{2} = patients
 subj{1} = [1:7, 9:14, 16:22];                                               % all available control subjects for analyses
-subj{2} = [1:3, 5:17, 21:23];
+subj{2} = [1:3, 5:9, 11:17, 21:23]; %subj16, np=10 must be excluded
 
 for adap = 3
     for n = 1:2
@@ -18,7 +18,7 @@ for adap = 3
                 read_data(subj, wdir, type)
 
             case (2)
-                clean_data(subj, wdir, type)
+                clean_data(subj, ROOTDIR, wdir, type)
                 
             case (3)
                 preprocess_data(subj, ROOTDIR, wdir, type)

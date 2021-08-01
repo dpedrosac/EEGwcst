@@ -17,7 +17,6 @@ loadgen = 'Z:\EEG_raw\';                                                    % fo
 %% General settings
 load([wdir '\wcst\patdat.mat']);                                            % this file loads the meta data
 rspl_freq       = 200;                                                      % frequency at which the data will be resampled
-% outdir_branch   = 'Z:\wcst\';                                               % drive with principal directory in which data will be saved
 outdir_branch   = 'C:\Users\David\projekte\wcst';                                               % drive with principal directory in which data will be saved
 prefix          = 'EEG-Tremorstudie_';                                      % prefix of BRAINVISION data
 steps2apply     = 1:2;
