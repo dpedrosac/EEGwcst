@@ -13,7 +13,7 @@ function stats_and_results
 
 %% General settings and indices to use later in the analyses
 [wdir, ROOTDIR] = EEGwcst_defaults; 
-subj1   = [3,4,5,7,8,10,13,14,18,19,20, 22,23,24,42,44,45]; %21, 16 removed          % ET-Patients
+subj1   = [3,4,5,7,8,10,13, 14,18,19,20, 22,23,24,42,44,45]; %21, 16 removed          % ET-Patients
 subj2   = [1,2,27,28,29,30,32,35,36,37,38,39,41,43,46,47,50]; %48,49        % CTRL-subjects
 
 load(fullfile(ROOTDIR, 'data', 'patdat.mat'));                   %#ok<LOAD> % load metadata
@@ -31,5 +31,4 @@ results_1(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR)
 
 %% Second results, ERP comparisons between both groups
 results_2(control(idx_ctrl),patient(idx_et),subj1, subj2, ROOTDIR, wdir)
-
 

@@ -23,13 +23,13 @@ if opt == 0
 end
 
 if isunix
-    wdir = '~/Projects/EEGwcst';                                            % defines the working directory
     ROOTDIR = '/media/storage/skripte/lambda/';                             % adds the folder with all scripts to the wdir
-    addpath('/media/storage/skripte/fieldtrip/'); ft_defaults               % set fieldtrip defaults
+    wdir = fullfile(ROOTDIR, 'data');                                        % defines the working directory
+    addpath('/opt/fieldtrip/'); ft_defaults               % set fieldtrip defaults
 elseif ispc
     if strcmp(getenv('username'), 'dpedr')
-        wdir = 'C:\Users\dpedr\data\EEGwcst';
         ROOTDIR = 'D:\skripte\lambda\';
+        wdir = fullfile(ROOTDIR, 'data');                                        % defines the working directory
         addpath('D:\skripte\fieldtrip'); ft_defaults;
     else
         warning("Please specific folders to 'EEGwcst_default.m' fitting to your settings")

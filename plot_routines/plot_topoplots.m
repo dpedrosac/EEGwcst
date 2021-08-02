@@ -69,10 +69,10 @@ end
 
 %% Nonparametric tests between groups
 % Define neighbours
-if ~exist([pwd, '\neighbours.mat'], 'file')
+if ~exist(fullfile(pwd, 'neighbours.mat'), 'file')
     define_neighbours(avg_topoplot{1}{1}, pwd, 1, 0)
 end
-load([pwd, '\neighbours.mat'])
+load(fullfile(pwd, 'neighbours.mat'))
 
 cfg = [];
 cfg.channel     = 'EEG';

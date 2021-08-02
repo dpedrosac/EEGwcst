@@ -3,7 +3,7 @@
 %   for all the differentsteps in order to get the preprocessing and 
 %   the analysis of the source data
 [wdir, ROOTDIR] = EEGwcst_defaults(0);
-addpath('d:\skripte\othercolor')
+addpath(fullfile(ROOTDIR, 'othercolor'))
 
 %%
 % subj{1} = controls, subj{2} = patients
@@ -22,6 +22,10 @@ for adap = 3
                 
             case (3)
                 preprocess_data(subj, ROOTDIR, wdir, type)
+
+            case (4)
+                preprocess_sourceanalysis(subj, ROOTDIR, wdir, type)
+
             
             case (99)
                 stats_and_results(subj, wdir, type);
