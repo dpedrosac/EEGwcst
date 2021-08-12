@@ -16,7 +16,7 @@ function rt_subj = rtimes_trials(subj1, subj2, ROOTDIR)
 event_dir = fullfile(ROOTDIR, 'data', 'header_and_events');
 conds = {'WO', 'ALC'};                                                      % two different conditions available
 trls2est = {[10, 20], 21:25};                                               % different trials to estimate; thereby 10/20 is the code for the tone indicating a shifting error and 21:25 is the code for a right answer
-lims_outliers = [.2 10];                                                    % limits at which data is considered wrong/artifact
+lims_outliers = [.3 12.5];                                                    % limits at which data is considered wrong/artifact
 
 %% Start estimating response times according to trial of interest
 for g = 1:2 % loop through both groups (ET-patients, CTRL-subj)
@@ -132,7 +132,7 @@ writetable(tbl_anova, fullfile(ROOTDIR, 'data', ...
 
 %% Create data for different groups
 dattemp = {};
-fx_outliers = @(x) x(x>.2 & x < 10);
+fx_outliers = @(x) x(x>lims_outliers(1) & x < lims_outliers(2));
 
 for g = 1:2 % loop through both groups
     iter = 0;

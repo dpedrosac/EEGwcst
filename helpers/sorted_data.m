@@ -16,6 +16,7 @@ function sorted_data = sorted_data(data, rename_iz)
 %   warranties whatsoever.
 
 if rename_iz == 1
+    sorted_data = data;
     sorted_data.label{strcmp(data.label, 'IZ')} = 'Iz';
 else
     sorted_data = data;

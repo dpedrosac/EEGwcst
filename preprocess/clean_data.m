@@ -12,19 +12,21 @@ function clean_data(subj, ROOTDIR, wdir, type)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
+
 %% General settings
-cd(ROOTDIR);
-loaddir     = [ROOTDIR '\data\'];
-load([loaddir '\patdat.mat']);                                              % this file loads the meta data
+load(fullfile(wdir, 'patdat.mat'));                                         % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
-steps2apply = 2;                                                            % four steps available: (1): load data (2): downsample (3): read HDR and events (4): artifact removal
-flag_check  = 1;                                                            % this option is intended for debgugging purposes, that is to visualise steps
-cond = {'WO', 'ALC'};
-fx_transpose        = @(x) x.';
-temp = control; seq = 'subject';
-if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
+
+steps2apply     = 1;                                                        % four steps available: (1): load data (2): downsample (3): read HDR and events (4): artifact removal
+flag_check      = 1;                                                        % this option is intended for debgugging purposes, that is to visualise steps
+cond            = {'WO', 'ALC'};                                            % different conditions, later important for saving
+fx_transpose    = @(x) x.';
+
 
 for np = tolom                                                             % provides a list of subjects to be analysed
+    temp = control; seq = 'subject';
+    if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
+    fprintf("\n========================")
     fprintf('the %s actually being computed is %s\n', seq, temp(np).name)
     code_parti = upper(temp(np).code);                                      % relevant information for later in the next few lines
     bad_channels = temp(np).badchannels;
@@ -33,18 +35,23 @@ for np = tolom                                                             % pro
     for steps = steps2apply                                                 % for better control, this loop enables to simply run some of the analyses
         switch (steps)
             case 1 %% removes components corresponding to blink artifacts identified from ICA
-                
-                inputdir= fullfile(wdir, 'data_resampled');
+
+                inputdir= fullfile(wdir, 'rawEEG');
+
+                % Define and create necessary output directories (outdir)
                 outdir = fullfile(wdir, 'data_noica');                      % directory at which data will be saved
+                if ~exist(outdir, 'dir'), mkdir(outdir); end                % create directory, if not present already
+                
                 filename_rspl = ...
                     {strcat('datrsp_', code_parti, '_WO.mat'), ...
                     strcat('datrsp_', code_parti, '_ALC.mat')};
-                filename_noica = ...
-                    {strcat('datnoica_', code_parti, '_WO.mat'), ...
-                    strcat('datnoica_', code_parti, '_ALC.mat')};
                 
-                for c = 1:2 % loop through both conditions (WO) and (ALC)
-                    if ~exist(fullfile(outdir, filename_noica{c}), 'file')     % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                for c = 1:numel(cond) % loop through both conditions (WO) and (ALC)
+                    filename_noica = ...
+                        {strcat('datnoica_', code_parti, '_WO.mat'), ...
+                        strcat('datnoica_', code_parti, '_ALC.mat')};
+                    
+                    if exist(fullfile(outdir, filename_noica{c}), 'file')  % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                         fprintf('\nartifact interpolation for %s already done, continuing with next step ... \n', code_parti)
                         continue
                     else
@@ -75,7 +82,7 @@ for np = tolom                                                             % pro
                         cfg.preproc.demean  = 'yes';
                         cfg.preproc.detrend = 'yes';
                         cfg.blocksize       = 10;                           % no. of seconds to display
-                        cfg.layout          = 'eeg1005.lay';                % specifies the layout file that should be used for plotting
+                        cfg.layout          = 'EEG1005.lay';                % specifies the layout file that should be used for plotting
                         ft_databrowser(cfg, data_rsp)
                         
                         % The next lines plot the components available in order to
@@ -83,7 +90,7 @@ for np = tolom                                                             % pro
                         cfg = [];
                         cfg.viewmode = 'component';
                         cfg.blocksize= 10;                                  % no. of seconds to display
-                        cfg.layout   = 'eeg1005.lay';                       % specifies the layout file that should be used for plotting
+                        cfg.layout   = 'EEG1005.lay';                       % specifies the layout file that should be used for plotting
                         try ft_databrowser(cfg, data_comp); catch; end
                         
                         done = 0;
@@ -109,7 +116,7 @@ for np = tolom                                                             % pro
                         % Data now to be reconstructed, excluding selected components
                         cfg = [];
                         cfg.component   = x;
-                        data_noica   = ...                                   % the next line removes the selected components
+                        data_noica      = ...                                   % the next line removes the selected components
                             ft_rejectcomponent(cfg, data_comp, data_rsp);
                         
                         %  The next few lines plot the difference between
@@ -124,13 +131,16 @@ for np = tolom                                                             % pro
                             cfg.preproc.demean  = 'yes';                    % de-meaning
                             cfg.preproc.detrend = 'yes';                    % de-trending
                             cfg.blocksize       = 10;                       % no. of seconds to display
-                            cfg.layout          = 'eeg1005.lay';            % specifies the layout file that should be used for plotting
+                            cfg.yaxis           = [-1 1].*4;                                           % scale of y-axis (arbitrary)
+                            cfg.layout          = 'EEG1005.lay';            % specifies the layout file that should be used for plotting
                             ft_databrowser(cfg, data_rsp)                   % before bad channel interpolation
                             
                             cfg.datafile = data_noica;                      % second file to be plotted
                             ft_databrowser(cfg, data_noica);                % after all steps of interpolation/ICA and rejection
+                            keyboard
                         end
                     end
+                    close all
                     save(fullfile(outdir, filename_noica{c}), 'data_noica', '-v7.3');
                 end
                 
@@ -186,15 +196,15 @@ for np = tolom                                                             % pro
                     else
                         load(strcat(inputdir, filename_noica{c}));             % this line loads the resampled data into workspace
                         
-                        try load(strcat(loaddir, 'neighbours.mat'));       % loads the neighbours definition, and creates such a definition in case there is none
+                        try load(strcat(wdir, 'neighbours.mat'));       % loads the neighbours definition, and creates such a definition in case there is none
                         catch
                             dist = 40;                                      % distance neighbouring information is taken from (see define_neighbours)
                             neighbours = define_neighbours(data_noica, ...
-                                loaddir, dist, flag_check);                 % runs the function in which definition of neighbours is
+                                wdir, dist, flag_check);                 % runs the function in which definition of neighbours is
                         end
                         
                         data_noica.elec = ...                               % this block assigns the electrode positions according to BRAINVISION to the data
-                            ft_read_sens([loaddir 'brainamp2.sfp']);
+                            ft_read_sens([wdir 'brainamp2.sfp']);
                         data_noica.elec = ...
                             ft_convert_units(data_noica.elec, 'mm');
                         data_noica = sorted_data(data_noica, 1);            % to make FT recognize 'Iz', it is necessary to rename it; besides, elec labels are sorted alphabetically for consistency
@@ -246,7 +256,7 @@ for np = tolom                                                             % pro
                         cfg.preproc.demean  = 'yes';                        % de-mean data
                         cfg.preproc.detrend = 'yes';                        % detrend data
                         cfg.blocksize       = 25;                           % no. of seconds to display
-                        cfg.layout          = 'eeg1005.lay';                % specifies the layout file that should be used for plotting
+                        cfg.layout          = 'EEG1005.lay';                % specifies the layout file that should be used for plotting
                         cfg.datafile = data_noica;
                         ft_databrowser(cfg, data_noica);                  % after all steps of interpolation/ICA and rejection
                         
@@ -303,7 +313,7 @@ cfg.preproc.bsfreq  = [48 52];
 cfg.preproc.demean  = 'yes';                                                % de-mean data
 cfg.preproc.detrend = 'yes';                                                % detrend data
 %cfg.blocksize       = 25;                                                   % no. of seconds to display
-cfg.layout          = 'eeg1005.lay';                                        % specifies the layout file that should be used for plotting
+cfg.layout          = 'EEG1005.lay';                                        % specifies the layout file that should be used for plotting
 
 cfg.datafile = data_plot;
 ft_databrowser(cfg, data_plot);

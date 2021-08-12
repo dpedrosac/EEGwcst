@@ -3,7 +3,7 @@ function read_data(subj, wdir, type)
 %   This function loads the (raw) data and performs a resampling with the
 %   fieldtrip toolbox
 
-%   Copyright (C) December 2017
+%   Copyright (C) December 2017, modified August 2021
 %   D. Pedrosa, University Hospital of Gieﬂen and Marburg
 %
 %   This software may be used, copied, or redistributed as long as it is
@@ -12,134 +12,166 @@ function read_data(subj, wdir, type)
 %   warranties whatsoever.
 
 
-loadgen = 'Z:\EEG_raw\';                                                    % folder, in which all subjects are saved
+raw_folder = '/media/storage/EEGraw';                                       % folder, in which all subjects are saved (temporarily)
 
 %% General settings
-load([wdir '\wcst\patdat.mat']);                                            % this file loads the meta data
+load(fullfile(wdir, 'patdat.mat'));                              %#ok<LOAD> % this file loads the meta data
 rspl_freq       = 200;                                                      % frequency at which the data will be resampled
-outdir_branch   = 'C:\Users\David\projekte\wcst';                                               % drive with principal directory in which data will be saved
 prefix          = 'EEG-Tremorstudie_';                                      % prefix of BRAINVISION data
 steps2apply     = 1:2;
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
+cond            = {'WO', 'ALC'};                                            % different conditions, later important for saving
 
-for np = tolom                                                             % provides a list of subjects to be analysed
-    if strcmp(type, 'p')
-        disp(['the patient actually being computed is ' patient(np).name]); % this line provides the patient currently being analyzed in the command window
-        code_participant    = upper(patient(np).code);
-        file_suffix = {patient(np).file, patient(np).file2};                % Because of nonuniform nomencalture, the filename needs to be provided at this point for the WO ...
-        % and the ALCOHOL condition, respectively (see metadata)
-        nam = patient(np).name;
-    else
-        disp(['the subject actually being computed is ' control(np).name]); % this line provides the patient currently being analyzed in the command window
-        code_participant= upper(control(np).code);
-        file_suffix     = {control(np).file, control(np).file2};            % Because of nonuniform nomencalture, the filename needs to be provided at this point for the WO ...
-        % and the ALCOHOL condition, respectively (see metadata)
-        nam = control(np).name;
-    end
-    load_dir = strcat(loadgen, code_participant);                           % defines and changes the working directory to where data is stored
-    savedir = strcat(outdir_branch, '\', code_participant);
+% Start reading data one channel at a time
+for np = tolom
+    temp = control; seq = 'subject';
+    if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
+    fprintf("\n========================")
+    fprintf('the %s actually being computed is %s\n', seq, temp(np).name)
+    code_participant = upper(temp(np).code);
+    file_suffix = {temp(np).file, temp(np).file2};                          % Because of nonuniform nomencalture, the filename needs to be provided at this point for the WO ...
+                                                                            % and the ALCOHOL condition, respectively (see metadata)
+    nam = temp(np).name;
+    read_dir = fullfile(raw_folder, code_participant);                      % defines directory to where data is stored
     
     %% Starts with the different steps available (see general settings)
     for steps = steps2apply                                                 % for better control, this loop enables to simply run some of the analyses
         switch (steps)
             case 1 %% this step reads data and saves it a format compatible with fieldtrip
-                if ~exist(savedir, 'dir'), mkdir(savedir); end                          % create directory, if not present already
-                
-                try cd(load_dir);
+                try cd(read_dir);
                 catch
                     fprintf('inexisting folder for subj:  %s \n', nam);
                     continue
                 end
                 
-                cond = {'WO', 'ALC'};                                       % different conditions, later important for saving
-                for c = 1:2                                                 % loop through differentr conditions, i.e. 1 = (WO), 2 = (ALC) condition
+                % Define and create necessary output directories (outdir)
+                outdir = fullfile(wdir, 'rawEEG');                          % directory in which data will be saved after processing 'raw MRI'
+                if ~exist(outdir, 'dir'), mkdir(outdir); end                % create directory, if not present already
+                
+                for c = 1:numel(cond)                                       % loop through differentr conditions, i.e. 1 = (WO), 2 = (ALC) condition
                     filename_final = ...
                         strcat('datrsp_', code_participant, '_', ...
                         cond{c}, '.mat');   % filename under which data will be saved in the (outdir) directiry
-                    if exist(strcat(savedir, '\', filename_final), 'file')                               % if filename has already been processed, subject is skipped to save time
-                        if c == 2; fprintf('subj: %s has already been processed, next subj... \n', nam); end
+                    if exist(fullfile(outdir, filename_final), 'file')      % if filename has already been processed, subject is skipped to save time
+                        if c == 2; fprintf('\n\tsubj: %s has already been processed, next subj... \n', nam); end
                         continue
                     else
                         clear filename1 data_all data_rsp;                              % clears data that will be used from now on in loops
                         filename1 = strcat(prefix, code_participant, '_', ...           % filename, so that data may be loaded
                             file_suffix{c}, '.eeg');
                         
-                        if ~exist(filename1, 'file')
-                            fprintf('problem with data from %s, skipping. \n', nam);
-                            keyboard;                                 % sloppy fix, as some files have really odd names, this is introduced
-                        end                                                             % at this point to manually adapt names
+                        if ~exist(fullfile(read_dir, filename1), 'file')
+                            fprintf('\nproblem with data from subj %s @ %s condition please select file manually \n', nam, cond{c});
+                            cd(read_dir)                                 % change directory and select file manually
+                            [file,path] = uigetfile('*.eeg');
+                            if isequal(file,0)
+                                fprintf('No file selected, skipping to next subject ...\n');
+                                continue
+                            else
+                                filename1 = file;
+                                fprintf('The selected file for the %s condition is: %s\n', cond{c}, fullfile(path,file));
+                            end
+                            cd(wdir)
+                        end
                         
                         % Reads data from original files taking specific channels into account
-                        cfg = [];
-                        cfg.dataset = filename1;                                        % reads data from filename as defined before
-                        cfg.channel = {'all', '-Flex*'};                                % Extract all data except some of the EMG
-                        data_all = ft_preprocessing(cfg);
-                        
-                        % Resamples data to lower frequency
-                        cfg = [];
-                        cfg.resamplefs  = rspl_freq;                                    % resampling frequency
+                        cfg = [];                                           % cfg is used in the for-loop for reading and downsampling data channelwise
+                        cfg.resamplefs = rspl_freq;
+                        %cfg.feedback    = 'text';
                         cfg.detrend     = 'no';
-                        data_rsp        = ft_resampledata(cfg, data_all);
-                        clear data_all;                                                 % clears data_all to save space on workspace
+                        
+                        singlechan = cell(1, 127);                          % pre-allocate space
+                        for i = 1:127 % for loop necessary because of > 2GB size
+                            cfg_temp = [];
+                            cfg_temp.channel= i;                           % you can use a number as well as a string
+                            cfg_temp.dataset= ...
+                                fullfile(read_dir, filename1);              % reads data from filename as defined before
+                            temp            = ft_preprocessing(cfg_temp);
+                            fprintf('\nprocessing channel no. %s ', temp.label{1});
+                            singlechan{i}   = ft_resampledata(cfg, temp);
+                        end % for all channels
+                        
+                        cfg = []; % append data to one structure
+                        data_rsp = ft_appenddata(cfg, singlechan{:});
                         
                         % Saves data to pre-specified folder
-                        save(strcat(savedir, '\', filename_final), 'data_rsp', '-v7.3');
+                        save(fullfile(outdir, filename_final), ...
+                            'data_rsp', '-v7.3');
                     end
                 end
                 
-            case (2) % the next part extracts the header information and creates both header and event files
-                try cd(load_dir);                                           % changes directory to subject-specfic folder
+            case (2) % extract header information & create header/event
+                try cd(read_dir);                                           % changes directory to subject-specfic folder
                 catch
                     fprintf('inexisting folder for subj:  %s \n', nam);
                     continue
                 end
                 
-                cond = {'WO', 'ALC'};                                       % different conditions, later important for saving
-                for c = 1:2   % loop through different conditions, i.e. 1 = (WO), 2 = (ALC) condition
+                % Define and create necessary output directories (outdir)
+                outdir_header = fullfile(wdir, 'header_and_events');        % directory in which data will be saved after processing 'raw MRI'
+                if ~exist(outdir_header , 'dir'), mkdir(outdir_header); end % create directory, if not present already
+                
+                for c = 1:numel(cond) % loop through conditions, i.e. 1 = (WO), 2 = (ALC)
                     filename_final = ...
-                        strcat('header_', code_participant, '_', cond{c}, '.mat');   % filename under which data will be saved in the (outdir) directiry
-                    if exist(strcat(savedir, '\', filename_final), 'file')                               % if filename has already been processed, subject is skipped to save time
+                        strcat('header_', code_participant, '_', ...
+                        cond{c}, '.mat');                                   % filename under which data will be saved in the (outdir) directiry
+                    if exist(fullfile(outdir_header, ...
+                            filename_final), 'file')                        % if filename has already been processed, subject is skipped to save time
                         if c == 2; fprintf('subj: %s has already been processed, headers already available ... \n', nam); end
                         continue
                     else
-                        clear filename_raw;                                 % clears data that will be used from now on in loops
-                        filename_raw = strcat(loadgen, code_participant, ...
-                            '\', prefix, code_participant, '_', ...         % filename, so that data may be loaded from the original BRAINvision file
-                            file_suffix{c}, '.eeg');
+                        clear filename1 data_all data_rsp;                  % clears data that will be used from now on in loops
+                        filename1 = strcat(prefix, code_participant, ...
+                            '_', file_suffix{c}, '.eeg');                   % filename, so that data may be loaded
                         
-                        if ~exist(filename_raw, 'file')                     %this part of the code serves to avoid breaks, in case the file has a different name
-                            fprintf('problem with data from %s, skipping. \n', nam);
-                            %                             continue;
-                            keyboard;                                       % sloppy fix, as some files have really odd names, this is introduced
-                        end                                                 % at this point to manually adapt names
+                        if ~exist(fullfile(read_dir, filename1), 'file')
+                            fprintf('\nproblem with data from subj %s @ %s condition please select file manually \n', nam, cond{c});
+                            cd(read_dir)                                 % change directory and select file manually
+                            [file,path] = uigetfile('*.eeg');
+                            if isequal(file,0)
+                                fprintf('No file selected, skipping to next subject ...\n');
+                                continue
+                            else
+                                filename1 = file;
+                                fprintf('The selected file for the %s condition is: %s\n', cond{c}, fullfile(path,file));
+                            end
+                        end
                         
-                        % Reads data from original files taking specific channels into account
+                        % Reads header and preprocess data
                         filename_header = ...
-                            strcat('header_', code_participant, '_', cond{c}, '.mat');
+                            strcat('header_', code_participant, '_', ...
+                            cond{c}, '.mat');
                         
-                        hdr = ft_read_header(filename_raw);
-                        save(strcat(savedir, '\', filename_header), 'hdr', '-v7.3');
+                        hdr = ft_read_header(fullfile(read_dir, filename1));
+                        save(fullfile(outdir_header, filename_header), ...
+                            'hdr', '-v7.3');
                         
-                        events = ft_read_event(filename_raw);
-                        save(strcat(savedir, '\', 'events_', cond{c}, '_', code_participant, ...
-                            '.mat'), 'events', '-v7.3');
+                        events = ...
+                            ft_read_event(fullfile(read_dir, filename1));
+                        save(fullfile(outdir_header, strcat('events_', ...
+                            cond{c}, '_', code_participant, ...
+                            '.mat')), 'events', '-v7.3');
                         
                         % start getting the data to later epoch the file
                         cfg                         = [];
-                        cfg.datafile                = filename_raw;
+                        cfg.datafile                = ...
+                            fullfile(read_dir, filename1);
                         cfg.headerfile              = ...
-                            strcat(filename_raw(1:end-4), '.vhdr');               % this just defines the orignal header file
-                        cfg.trialfun                = 'ft_trialfun_general';    % this is the default
+                            strcat(filename1(1:end-4), '.vhdr');            % this just defines the orignal header file
+                        cfg.trialfun                = 'ft_trialfun_general';% this is the default
                         cfg.trialdef.eventtype      = 'Stimulus';
                         cfg.trialdef.prestim        = .5; % in seconds before time = 0;
                         cfg.trialdef.poststim       = 2;  % in seconds after time = 0;
                         trialdef = ft_definetrial(cfg);
-                        save(strcat(savedir, '\', 'trialdef_', ...
-                            code_participant,'_', cond{c}, '.mat'), 'trialdef', '-v7.3'); % saves trial data
+                        save(fullfile(outdir_header, strcat('trialdef_', ...
+                            code_participant,'_', cond{c}, '.mat')), ...
+                            'trialdef', '-v7.3');                           % saves trial data
                         
-                        filename_excl = strcat(outdir_branch, '\events_', cond{c}, '.xlsx' );
-                        table = output_excel(events, hdr);
-                        writetable(table, filename_excl,'Sheet',code_participant)
+                        filename_excl = fullfile(outdir_header, ...
+                            strcat('events_', cond{c}, '.xlsx'));
+                        table_output = output_excel(events, hdr);
+                        writetable(table_output, filename_excl, ...
+                            'Sheet',code_participant)
                     end
                 end
         end

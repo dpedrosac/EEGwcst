@@ -100,7 +100,7 @@ switch test % switch to change between paired and unpaired t-tests
 end
 
 p_age = fx_sig([data{1}(:).age].', [data{2}(srt).age].');
-p_rt_wo = fx_sig(rtimes{1}(:,1), rt_total_wo{2}(:,2));
+p_rt_wo = fx_sig(rtimes{1}(:,1), rtimes{2}(:,2));
 p_rt_alc = fx_sig(rtimes{1}(:,2), rtimes{2}(:,2));
 
 p_complete_wo = fx_sig(incomplete_runs{1}(srt,1), incomplete_runs{2}(srt,1));
