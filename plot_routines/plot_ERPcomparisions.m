@@ -110,11 +110,11 @@ for dId = 1:numel(ch) % loop through the channels of interest
             length(toi(1):toi(2)));                           % pre-allocate space
         for fx = 1:numel(fx_plots) % loop through different metrics
             tmp_data_avg(fx,:) = ...
-                fac * fx_plots{fx}(dat_all{g}(:,toi(1):toi(2)));
+                fac * fx_plots{fx}(smoothdata(dat_all{g}(:,toi(1):toi(2)), 'gaussian', 3));
         end
         
         % Line plots and fill out in between to show Confidence interval
-        m(g) = plot(time_vector, tmp_data_avg(1,:), ...
+        m(g) = plot(time_vector, smoothdata(tmp_data_avg(1,:), 'gaussian', 3), ...
             'Color', p.colors{g+2}); hold on;
         fillx = [time_vector, fliplr(time_vector)];
         filly = [tmp_data_avg(2,:), fliplr(tmp_data_avg(3,:))];

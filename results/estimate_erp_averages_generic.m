@@ -45,6 +45,7 @@ parfor proc = 1:numel(all_subj)
     cfg = [];
     cfg.trials = find(ismember(partemp.data_final.trialinfo, toi));
     data_temp = ft_selectdata(cfg, partemp.data_final);
+    if isempty(data_temp.trialinfo), continue; end
     
     cfg = [];
     cfg.bpfiler = 'yes';

@@ -262,7 +262,7 @@ function [bc, bt] = plot_relevant_trials(data_rsp, cond, subj, wdir, bc)
 % to the trials saved in the trialdef file
 
 frsp = 5000/200;
-load(fullfile(wdir, 'header_and_events', ...
+load(fullfile(wdir, 'trialdef', ...
     strcat(sprintf('trialdef_%s_%s.mat', subj, cond))));                    % this line loads the trial definitions so that data may be cut into chunks to be processed
 
 %% Start selecting trials and merge data

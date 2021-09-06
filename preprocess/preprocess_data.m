@@ -14,10 +14,10 @@ function preprocess_data(subj, ROOTDIR, wdir, type)
 
 %% General settings
 cd(ROOTDIR);
-loaddir     = [ROOTDIR '\data\'];
-load([loaddir '\patdat.mat']);                                  %#ok<LOAD>  % this file loads the meta data
+loaddir     = fullfile(ROOTDIR, 'data');
+load(fullfile(wdir, 'patdat.mat'));                                         % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
-steps2apply = 3;                                                            % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
+steps2apply = 1:3;                                                            % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
 type_calc   = 'erp';
 
 for np = tolom % loop through all subjects of one group
@@ -33,8 +33,8 @@ for np = tolom % loop through all subjects of one group
             case 1 % Filter data, output is struct with filtered data for {1} erp- and {2} tfr-analyses
                 hpf     = [.1 3];                                           % high-pass filter frequency
                 lpf     = 30;
-                inputdir= fullfile(wdir, 'cleaned');
-                outdir = fullfile(wdir, 'data_cleaned');                    % directory at which data will be saved
+                inputdir= fullfile(wdir, 'data_clean');
+                outdir = fullfile(wdir, 'data_preprocessed');               % directory at which data will be saved
                 if ~exist(outdir, 'dir'); mkdir(outdir); end
                 
                 filename_clean = ...
@@ -45,7 +45,7 @@ for np = tolom % loop through all subjects of one group
                     strcat('datpreproc_', code_parti, '_ALC.mat')};
                 
                 for c = 1:2 % loop through both conditions
-                    if exist(strcat(outdir, filename_preproc{c}), 'file')   % the next few lines check if data is already present and skips further processing if so to avoid redundancy
+                    if exist(fullfile(outdir, filename_preproc{c}), 'file')   % the next few lines check if data is already present and skips further processing if so to avoid redundancy
                         fprintf('\npre-preprocessing for %s already done, continuing with next step ...\n', code_parti )
                         continue
                     else
@@ -69,12 +69,14 @@ for np = tolom % loop through all subjects of one group
                     continue
                 else
                     epoch_trials(filename_clean, filename_save, ...
-                        code_parti, wdir, ROOTDIR, type_calc)
+                        code_parti, wdir, ROOTDIR, temp(np), type_calc)
                 end
                 
             case 3 % remove badtrials (after identifying them if necessary)
                 inputdir = fullfile(wdir, 'data_merged');                   % directory data will be loaded from
                 outdir = fullfile(wdir, 'data_final');                      % directory at which data will be saved
+                if ~exist(outdir, 'dir'); mkdir(outdir); end                
+                
                 filename_final = sprintf('data_final_%s_%s.mat', ...
                     type_calc, code_parti);
                 filename_epoched = sprintf('data_merged_%s_%s.mat', ...
@@ -99,8 +101,8 @@ for np = tolom % loop through all subjects of one group
                     for b = 1:numel(start_signal)
                         idx_bad = [idx_bad; ...
                             find(data_merged.trialinfo==start_signal(b))];
-                        idx_bad = [idx_bad; ...
-                            find(data_merged.trialinfo==start_signal(b))+1];% necessary as code: '31' is ambiguous (start code *and* code of certain trials in MCST)
+%                         idx_bad = [idx_bad; ...
+%                             find(data_merged.trialinfo==start_signal(b))+1];% necessary as code: '31' is ambiguous (start code *and* code of certain trials in MCST)
                     end
                     idx_bad = [idx_bad; find(data_merged.trialinfo>1000)];  %#ok<*AGROW>
                     
@@ -108,28 +110,28 @@ for np = tolom % loop through all subjects of one group
                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
                         idx_bad);
                     data_merged = ft_selectdata(cfg, data_merged);
+%                     
+%                     % Remove bad trials after eyeballing (if necessary)
+%                     if isempty(bad_trials) % if bad trials not yet identified, this plots all trials in order to check 'visually'
+%                         [bc, bad_trials] = plot_relevant_trials(data_merged);
+%                         if strcmp(type, 'p')
+%                             patient(np).badtrials = bad_trials;
+%                             patient(np).badchannels{1} = ...
+%                             unique([patient(np).badchannels{1}, bc{1:end-1}]);
+%                         else
+%                             control(np).badtrials = bad_trials;
+%                             control(np).badchannels{1} = ...
+%                             unique([control(np).badchannels{1}, bc{1:end-1}]);
+%                         end
+%                         save(fullfile(ROOTDIR, 'data', 'patdat.mat'),...    % save new patdat.mat file with metadata
+%                             'control', 'patient', '-v7.3');
+%                     end
                     
-                    % Remove bad trials after eyeballing (if necessary)
-                    if isempty(bad_trials) % if bad trials not yet identified, this plots all trials in order to check 'visually'
-                        [bc, bad_trials] = plot_relevant_trials(data_merged);
-                        if strcmp(type, 'p')
-                            patient(np).badtrials = bad_trials;
-                            patient(np).badchannels{1} = ...
-                            unique([patient(np).badchannels{1}, bc{1:end-1}]);
-                        else
-                            control(np).badtrials = bad_trials;
-                            control(np).badchannels{1} = ...
-                            unique([control(np).badchannels{1}, bc{1:end-1}]);
-                        end
-                        save(fullfile(ROOTDIR, 'data', 'patdat.mat'),...    % save new patdat.mat file with metadata
-                            'control', 'patient', '-v7.3');
-                    end
-                    
-                    cfg = [];
-                    cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
-                        bad_trials);
-                    data_final = ft_selectdata(cfg, data_merged);
-                    data_final = ft_struct2single(data_final);
+%                     cfg = [];
+%                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
+%                         bad_trials);
+%                     data_final = ft_selectdata(cfg, data_merged);
+                    data_final = ft_struct2single(data_merged);
                     save(fullfile(outdir, filename_final), ...
                         'data_final', '-v7.3');                             % saves the cleaned EEG data to one file
                 end

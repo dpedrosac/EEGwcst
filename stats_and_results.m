@@ -11,9 +11,11 @@ function stats_and_results
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
+
+%% https://www.nature.com/articles/s41598-019-45880-y
 %% General settings and indices to use later in the analyses
 [wdir, ROOTDIR] = EEGwcst_defaults; 
-subj1   = [3,4,5,6,7,8,10,13,14,16,18,19,20,21,22,23,24,42,44,45]; %16,21 removed          % ET-Patients
+subj1   = [3,4,5,6,7,8,10,13,14,16,18,19,20,21,22,23,24,42,44,45];          % ET-Patients
 subj2all   = [1,2,9, 27,28,29,30,32,35,36,37,38,39,41,43,46,47,48,50]; %48, 49,        % CTRL-subjects
 subj2   = [41, 38, 50, 9, 27,47,36,32,43,48,28,35,37,29,49,2,30, 46,39,1]; %48, 49,        % CTRL-subjects
 
