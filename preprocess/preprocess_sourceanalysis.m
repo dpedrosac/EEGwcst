@@ -36,6 +36,14 @@ for np = 1:numel(tolom)
     if isempty(code_mri); continue; end %TODO: generic MRI (template?!) should be used
     
     
+    %% Create template grid for source analyses later
+    filename_template_grid = fullfile(wdir, 'templateMRI', ...
+        'template_grid.mat');
+    if ~exist(filename_template_grid, 'file')
+        create_template_grid(fullfile(wdir, 'templateMRI', ...
+            'mni_icbm152_t1_tal_nlin_sym_09c.nii'), wdir);                  % creates a template grid according
+    end
+    
     %% Prepare MRI for further processing
     filename_mriprocessed = fullfile(outdir_mriprocessed, ...
         sprintf('MRIprocessed_%s.nii.gz', code_parti));                     % this is needed to check for existance to avoid redundancy
