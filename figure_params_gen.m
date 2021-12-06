@@ -17,7 +17,7 @@ params.ftsize = [14, 19, 24];
 params.greys = {24./255*ones(1,3), 84./255*ones(1,3), 144./255*ones(1,3)};  % different grey tones for data
 params.colors = {[207 68 44], [103 138 23], [255 118 95], [85 115 171], [24 47 89]};
 params.colors = cellfun(@(x) x./255, params.colors, 'Un', 0);
-params.lnsize = [.35, .75, 1.5];
+params.lnsize = [.75, 1.5, 3.0];
 params.symbols = {'.', 's', '^','o'};
 params.scatter = {'xk', 'ok'};
 

@@ -3,6 +3,8 @@ function create_template_grid(t1_filename, wdir, flag_check)
 %   This function creates a template based grid which may be used for
 %   the creation of a grid to use later
 
+%   ## Version 1.1, changed to SST instead of MNI template
+
 %   Copyright (C) September 2021
 %   D. Pedrosa, University Hospital of Gießen and Marburg
 %
@@ -17,7 +19,8 @@ end
 
 %% Create templare according to http://old.fieldtriptoolbox.org/tutorial/sourcemodel
 template = ft_read_mri(t1_filename);
-template.coordsys = 'acpc'; % so that FieldTrip knows how to interpret the coordinate system
+template.coordsys = 'lps'; % so that FieldTrip knows how to interpret the coordinate system; ANTs uses the DICOM 'coordinate system'
+% template.coordsys = 'acpc'; % so that FieldTrip knows how to interpret the coordinate system
 
 % Segment template brain and construct volume conduction model (i.e. head model):
 cfg          = [];
@@ -36,7 +39,7 @@ cfg.inwardshift     = -1.5;                                                 % ne
 cfg.headmodel       = template_headmodel;
 template_grid       = ft_prepare_sourcemodel(cfg);
 
-%% Create figure with the template head model and dipole grid
+%% Create figure with template head model and dipole grid
 if flag_check == 1
     figure
     hold on

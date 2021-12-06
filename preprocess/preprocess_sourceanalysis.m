@@ -14,57 +14,64 @@ function preprocess_sourceanalysis(subj, ROOTDIR, wdir, type)
 %   This routine is provided as is without any express or implied
 %   warranties whatsoever.
 
+%% Check for SST in the template folder
+if ~exist(fullfile(wdir, 'templateMRI', 'MRItrem_template0.nii.gz'), 'file')  % Looks for study specific template
+    fprintf('\n\t no study specific template available in folder ~/data/templateMRI/. Please run /helpers/CreateStudySpecificTemplate.sh!\n');
+    return
+end
 
 %% General settings
 cd(wdir)
-loaddir     = fullfile(ROOTDIR, 'mri');                         %#ok<NASGU>
+loaddir         = fullfile(ROOTDIR, 'mri');                     %#ok<NASGU>
 load(fullfile(wdir, 'patdat.mat'));                             %#ok<LOAD>  % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
-debug       = 0;                                                %#ok<NASGU>
+debug           = 0;                                            %#ok<NASGU>
 
-% Define and create necessary output directories (outdir)
-outdir_mriprocessed = fullfile(wdir, 'mri_preprocessed');                          % directory in which data will be saved after processing 'raw MRI'
-if ~exist(outdir_mriprocessed, 'dir'), mkdir(outdir_mriprocessed); end                    % create directory, if not present already
+% Define and create necessary inout/output directories (outdir)
+dir_mrifiles    = dir(fullfile(wdir, 'raw_MRI'));                           % input directory
+outdir_mriprocessed = fullfile(wdir, 'mri_preprocessed');                   % directory in which data will be saved after processing 'raw MRI'
+if ~exist(outdir_mriprocessed, 'dir'), mkdir(outdir_mriprocessed); end      % create directory, if not present already
 
-% Start with preparations for source analyses
+% Start preparations for source analyses
 for np = 1:numel(tolom)
-    temp = control; seq = 'subject';
+    temp = control; seq = 'subject';                                        % get metadata correctly along with next line
     if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
+   
     fprintf('the %s actually being computed is %s\n', seq, temp(np).name)
     code_parti = upper(temp(np).code);                                      % relevant information for later in the next few lines
     code_mri = upper(temp(np).mrt);
     if isempty(code_mri); continue; end %TODO: generic MRI (template?!) should be used
-    
     
     %% Create template grid for source analyses later
     filename_template_grid = fullfile(wdir, 'templateMRI', ...
         'template_grid.mat');
     if ~exist(filename_template_grid, 'file')
         create_template_grid(fullfile(wdir, 'templateMRI', ...
-            'mni_icbm152_t1_tal_nlin_sym_09c.nii'), wdir);                  % creates a template grid according
+        'MRItrem_template0.nii.gz'), wdir);                                 % creates template grid
+    %   'mni_icbm152_t1_tal_nlin_sym_09c.nii'), wdir);                      % creates template grid according
     end
     
     %% Prepare MRI for further processing
     filename_mriprocessed = fullfile(outdir_mriprocessed, ...
-        sprintf('MRIprocessed_%s.nii.gz', code_parti));                     % this is needed to check for existance to avoid redundancy
+        sprintf('segmentedMRI_%s.mat', code_parti));    % this is needed to check for existance to avoid redundancy
     if ~exist(filename_mriprocessed, 'file')
         filename_erpfinal = fullfile(wdir, 'data_final', ...
             sprintf('data_final_erp_%s.mat', code_parti));                  % this is needed to merge MRI and sensor data
         
-        dir_mrifilenames = dir(fullfile(wdir, 'raw_MRI'));
-        idx_mri = find(~cellfun(@isempty, regexp({dir_mrifilenames.name}, ...
+        idx_mri = find(~cellfun(@isempty, regexp({dir_mrifiles.name}, ...
             sprintf('^(MRItrem_template0tANAT_)+(%s)+[0-9A-Za-z_-]*.nii.gz', ...
             num2str(code_mri)), 'match')));
-        mri_file = fullfile(wdir, 'raw_MRI', 'MRItrem_template0.nii.gz'); %#ok<NASGU>
-        if ~isempty(idx_mri)
-            mri_file = dir_mrifilenames(idx_mri).name;
-        else
-            fprintf('\n\t no MRI available for subj: %s, using template\n', code_parti);
-            continue
-        end % use subject specific MRI if avialble else skip
+        mri_subj = fullfile(wdir, 'raw_MRI', 'MRItrem_template0.nii.gz'); %#ok<NASGU>
         
-        prepare_MRI(code_parti, filename_erpfinal, mri_file, ...
-            filename_mriprocessed)
+        if ~isempty(idx_mri)
+            mri_subj = dir_mrifiles(idx_mri).name;
+        else
+            fprintf('\n\t no MRI for subj: %s, use template\n', code_parti);
+            continue
+        end
+        
+        %% Run necessary steps to get MRI data processed
+        prepare_MRI(code_parti, filename_erpfinal, mri_subj)
     else
         fprintf('\n\t MRI already prepared for subj: %s !\n', code_parti);
     end

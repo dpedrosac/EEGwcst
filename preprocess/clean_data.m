@@ -303,6 +303,7 @@ cfg.metric      = 'zvalue';
 cfg.channel     = data_plot.label(~ismember(data_plot.label, bc));
 cfg.keepchannel = 'nan';                                                    % replacing "bad channels" with nan makes it easier to idetify them later
 cfg.keeptrial   = 'nan';                                                    % replacing "bad channels" with nan makes it easier to idetify them later
+% cfg.trials = setdiff(1:numel(data_plot.trial), bad_trials{c})             % possible option that could be implemented 
 dummy           = ft_rejectvisual(cfg, data_plot);
 
 % Select bad trials according to 'ft_rejectvisual routine and save them

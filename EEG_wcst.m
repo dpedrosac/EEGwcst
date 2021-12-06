@@ -1,6 +1,6 @@
 
 %%  Control file for analysis of beta at expectation. This file controls 
-%   for all the differentsteps in order to get the preprocessing and 
+%   for all the different steps in order to get the preprocessing and 
 %   the analysis of the source data
 [wdir, ROOTDIR] = EEGwcst_defaults(0);
 addpath(fullfile(ROOTDIR, 'othercolor'))

@@ -17,7 +17,7 @@ event_dir = fullfile(ROOTDIR, 'data', 'header_and_events');
 conds = {'WO', 'ALC'};                                                      % two different conditions available
 trls2est = {[10, 20], 21:25};                                               % different trials to estimate; thereby 10/20 is the code for the tone indicating a shifting error and 21:25 is the code for a right answer
 lims_outliers = [.3 12.5];                                                    % limits at which data is considered wrong/artifact
-
+flag_plot = 0;
 %% Start estimating response times according to trial of interest
 for g = 1:2 % loop through both groups (ET-patients, CTRL-subj)
     if g == 1; sjts = subj1; else; sjts = subj2; end                        % gets a list for either CTRL-subj. or ET-patients, depending on the variable (g)
@@ -55,58 +55,60 @@ for g = 1:2 % loop through both groups (ET-patients, CTRL-subj)
 end
 
 %% Plot results
-figure(101); hold on;
-p = figure_params_gen;                                                      % load general parameters for plots
-fx_plots = {@(x) nanmean(x), ...                                            % plots of mean and SEM
-    @(x) (nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
-    @(x) (nanmean(x) + 1.96*nanstd(x)./sqrt(size(x,1)))};
-fx_outliers = @(x) x(x > lims_outliers(1) & x < lims_outliers(2));
-
-% general settings for the plot
-offset  = .07;                                                               % length of the whiskers
-sb      = [1,1.5,3,3.5];                                                     % plot order for the data structure
-clrs    = {p.colors{4}, p.colors{1}};
-leg     = {'ET-patients', 'CTRL-subjects'};
-
-% Start plotting
-for c = 1:numel(conds) % loop through conditions and create subplots for both
-    subplot(1,2,c); hold on; iter = 0;
-    for k = 1:numel(trls2est) % loop through different trials
-        for g = 1:2 % loop through both groups
-            iter = iter +1;
-            if g == 1; rt_all = rt_et; else; rt_all = rt_ctrl; end
-            dat{g} = fx_outliers(rt_all{1,k}{c}(:,1)); %#ok<*AGROW>
-            
-            sjts_idx = unique(rt_all{1,k}{c}(:,2));                         % number of subjects, needed to aggregate means of data
-            dat_bar = nan(numel(sjts_idx),1);                               % pre-allocate space in order to fill it in the next few lines
-            for s = 1:numel(sjts_idx) % loop through all subjects in this group
-                idx_s = find(rt_all{1,k}{c}(:,2) == sjts_idx(s));           % finds the indices for specific subj(s)
-                dat_bar(s,1) = nanmean(dat{g}(idx_s));                      % fills (dat_bar) with data
+switch flag_plot
+    case (1)
+        figure(101); hold on;
+        p = figure_params_gen;                                                      % load general parameters for plots
+        fx_plots = {@(x) nanmean(x), ...                                            % plots of mean and SEM
+            @(x) (nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
+            @(x) (nanmean(x) + 1.96*nanstd(x)./sqrt(size(x,1)))};
+        fx_outliers = @(x) x(x > lims_outliers(1) & x < lims_outliers(2));
+        
+        % general settings for the plot
+        offset  = .07;                                                               % length of the whiskers
+        sb      = [1,1.5,3,3.5];                                                     % plot order for the data structure
+        clrs    = {p.colors{4}, p.colors{1}};
+        leg     = {'ET-patients', 'CTRL-subjects'};
+        
+        % Start plotting
+        for c = 1:numel(conds) % loop through conditions and create subplots for both
+            subplot(1,2,c); hold on; iter = 0;
+            for k = 1:numel(trls2est) % loop through different trials
+                for g = 1:2 % loop through both groups
+                    iter = iter +1;
+                    if g == 1; rt_all = rt_et; else; rt_all = rt_ctrl; end
+                    dat{g} = fx_outliers(rt_all{1,k}{c}(:,1)); %#ok<*AGROW>
+                    
+                    sjts_idx = unique(rt_all{1,k}{c}(:,2));                         % number of subjects, needed to aggregate means of data
+                    dat_bar = nan(numel(sjts_idx),1);                               % pre-allocate space in order to fill it in the next few lines
+                    for s = 1:numel(sjts_idx) % loop through all subjects in this group
+                        idx_s = find(rt_all{1,k}{c}(:,2) == sjts_idx(s));           % finds the indices for specific subj(s)
+                        dat_bar(s,1) = nanmean(dat{g}(idx_s));                      % fills (dat_bar) with data
+                    end
+                    dat_ttest{iter} = dat_bar; %#ok<*NASGU>
+                    b(iter) = bar(sb(iter), nanmean(dat_bar), ...                   % plots bars
+                        'FaceColor', clrs{g}, 'FaceAlpha', .7);
+                    wh_low(iter) = plot([sb(iter)-offset sb(iter)+offset], ...      % plots upper and lower whiskers
+                        fx_plots{2}(dat_bar).*[1 1], 'Color', p.greys{2}, ...
+                        'LineWidth', p.lnsize(3));
+                    wh_high(iter) = plot([sb(iter)-offset sb(iter)+offset], ...
+                        fx_plots{3}(dat_bar).*[1 1], 'Color', p.greys{2}, ...
+                        'LineWidth', p.lnsize(3));
+                    ln(iter) = plot(sb(iter).*[1 1], ...                            % plots the line in the middle between the whiskers
+                        [fx_plots{2}(dat_bar) fx_plots{3}(dat_bar)], ...
+                        'Color', p.greys{2}, 'LineWidth', p.lnsize(3));
+                end
+                
+                set(gca, 'FontName', p.ftname, 'FontSize', p.ftsize(2), ...
+                    'XTick', [mean(sb(1:2)), mean(sb(3:4))], 'XTickLabel', ...
+                    {'set-shift trials', 'memory trials'});
+                ylim([0.4 5]); xlim([.25 4.25]);
+                
+                if c == 1; ylabel(sprintf('Reaction time [in s.]')); end
             end
-            dat_ttest{iter} = dat_bar; %#ok<*NASGU>
-            b(iter) = bar(sb(iter), nanmean(dat_bar), ...                   % plots bars
-                'FaceColor', clrs{g}, 'FaceAlpha', .7);
-            wh_low(iter) = plot([sb(iter)-offset sb(iter)+offset], ...      % plots upper and lower whiskers
-                fx_plots{2}(dat_bar).*[1 1], 'Color', p.greys{2}, ...
-                'LineWidth', p.lnsize(3));
-            wh_high(iter) = plot([sb(iter)-offset sb(iter)+offset], ...
-                fx_plots{3}(dat_bar).*[1 1], 'Color', p.greys{2}, ...
-                'LineWidth', p.lnsize(3));
-            ln(iter) = plot(sb(iter).*[1 1], ...                            % plots the line in the middle between the whiskers
-                [fx_plots{2}(dat_bar) fx_plots{3}(dat_bar)], ...
-                'Color', p.greys{2}, 'LineWidth', p.lnsize(3));
         end
-        
-        set(gca, 'FontName', p.ftname, 'FontSize', p.ftsize(2), ...
-            'XTick', [mean(sb(1:2)), mean(sb(3:4))], 'XTickLabel', ...
-            {'set-shift trials', 'memory trials'});
-        ylim([0.4 5]); xlim([.25 4.25]);
-        
-        if c == 1; ylabel(sprintf('Reaction time [in s.]')); end
-    end
+        legend(b([1,2]), leg)                                                       % adds a legend to the plot
 end
-legend(b([1,2]), leg)                                                       % adds a legend to the plot
-
 %% Put data together as a table
 dat = []; iter = 0;
 for g = 1:2 % loop through groups

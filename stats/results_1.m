@@ -16,6 +16,8 @@ idx = {[1:numel(patient)],[1:numel(control)]};
 
 %% Estimate reaction times for all subjects
 rt_all = rtimes_trials(subj1, subj2, ROOTDIR);                              % uses a different script to extract the response times for the differentv trials;
+rtimes_per_block(subj1, subj2, ROOTDIR)
+
 %%  ==============================================================   %%
 % rt_all consists of two cells (CTRL{1} vs. ET{2}) with four columns:
 %   - shift-wo reaction times
@@ -40,7 +42,7 @@ for g = 1:2 % loop through groups (1) ET-patients, (2) control subjects
     p = progressbar( numel(mta_dat), 'percent' );                           % JSB routine for progress bars
     for k = 1:numel(mta_dat) % subj. per group for individual results
         p.update( k )
-        [tmp, c] = select_runs(mta_dat(k).code, ROOTDIR);                   % obtains the error counts from the events-files
+        [tmp, c, ~] = select_runs(mta_dat(k).code, ROOTDIR);                   % obtains the error counts from the events-files
         pe = select_perseveration(mta_dat(k).code, ROOTDIR);
         wrong_runs{g} = [wrong_runs{g}; tmp];
         complete_runs{g} = [complete_runs{g}; c];
