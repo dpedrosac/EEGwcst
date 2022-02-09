@@ -17,8 +17,8 @@ cd(ROOTDIR);
 loaddir     = fullfile(ROOTDIR, 'data');
 load(fullfile(wdir, 'patdat.mat'));                                         % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
-steps2apply = 1:3;                                                            % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
-type_calc   = 'erp';
+steps2apply = 1:3;                                                          % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
+type_calc   = 'tfr';%'erp';
 
 for np = tolom % loop through all subjects of one group
     temp = control; seq = 'subject';
@@ -34,7 +34,7 @@ for np = tolom % loop through all subjects of one group
                 hpf     = [.1 3];                                           % high-pass filter frequency
                 lpf     = 30;
                 inputdir= fullfile(wdir, 'data_clean');
-                outdir = fullfile(wdir, 'data_preprocessed');               % directory at which data will be saved
+                outdir  = fullfile(wdir, 'data_preprocessed');               % directory at which data will be saved
                 if ~exist(outdir, 'dir'); mkdir(outdir); end
                 
                 filename_clean = ...
@@ -131,7 +131,8 @@ for np = tolom % loop through all subjects of one group
 %                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
 %                         bad_trials);
 %                     data_final = ft_selectdata(cfg, data_merged);
-                    data_final = ft_struct2single(data_merged);
+                    %data_final = ft_struct2single(data_merged);
+                    data_final = data_merged;
                     save(fullfile(outdir, filename_final), ...
                         'data_final', '-v7.3');                             % saves the cleaned EEG data to one file
                 end

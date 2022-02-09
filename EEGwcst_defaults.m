@@ -22,6 +22,9 @@ if opt == 0
     close all; clear; clc;
 end
 
+global ft_default
+ft_default.showlogo = 'no';
+
 if isunix
     ROOTDIR = '/media/storage/skripte/lambda/';                             % adds the folder with all scripts to the wdir
     wdir = fullfile(ROOTDIR, 'data');                                        % defines the working directory

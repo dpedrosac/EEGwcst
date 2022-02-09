@@ -25,6 +25,7 @@ for c = 1:2 % loop through both conditions, WO and ALC
     load(fullfile(wdir, 'data_preprocessed', filename_preproc{c}));         % this line loads the cleaned data into workspace (for details see clean_data.m)
     load(fullfile(wdir, 'trialdef', sprintf('trialdef_%s_%s.mat', ...
         processed_subj, conds{c})));                                        % this line loads the trial definitions so that data may be cut into chunks to be processed
+    clear data_clean
     data_clean = data_preproc{idx_type};                        %#ok<USENS> % selects whether erp (1) or tfr (2) data is used
 
     if ~isfield(ev_all, 'incomplete')
@@ -70,9 +71,10 @@ for c = 1:2 % loop through both conditions, WO and ALC
         data_epoched{c}.trialinfo = data_epoched{c}.trialinfo+100;          % adds arbitrary value to trialinfo data (ALC), to make it unambiguos
         
         cfg = []; % merges both conditions to a single file
-        data_merged = ft_appenddata(cfg, data_epoched{1}, ...
+        cfg.keepsampleinfo  = 'no';
+        data_merged         = ft_appenddata(cfg, data_epoched{1}, ...
             data_epoched{2}); clear data_epoched
-        data_merged = ft_struct2single(data_merged);
+        %data_merged = ft_struct2single(data_merged);
         save(filename_save, 'data_merged', '-v7.3');        % saves merged EEG and acc data -to one file
     end
 end

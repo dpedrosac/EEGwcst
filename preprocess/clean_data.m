@@ -22,7 +22,6 @@ flag_check      = 0;                                                        % th
 cond            = {'WO', 'ALC'};                                            % different conditions, later important for saving
 fx_transpose    = @(x) x.';
 
-
 for np = tolom                                                             % provides a list of subjects to be analysed
     temp = control; seq = 'subject';
     if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
@@ -242,13 +241,14 @@ for np = tolom                                                             % pro
                     end
                     clear data_noica
                     
-                    %% Rereference and preprocess data
-                    cfg = [];
-                    cfg.reref           = 'yes';                            % the next few lines are intended to create average-referenced data
-                    cfg.refchannel      = 'all';                            % to average reference data, the refchannel is set to 'all'
-                    cfg.implicitref     = 'FCz';
-                    data_clean = ft_preprocessing(cfg, data_noarti);
-                    
+%                     %% Rereference and preprocess data
+%                     cfg = [];
+%                     cfg.reref           = 'yes';                            % the next few lines are intended to create average-referenced data
+%                     cfg.refchannel      = 'all';                            % to average reference data, the refchannel is set to 'all'
+%                     %cfg.implicitref     = 'FCz';
+%                     data_clean = ft_preprocessing(cfg, data_noarti);
+                    data_clean = data_noarti;
+
                     save(fullfile(outdir, filename_clean{c}), ...
                         'data_clean', '-v7.3');
                 end

@@ -3,7 +3,9 @@ function filter_rawdata(filename_clean, filename_filtered, hpf, lpf, wdir, outdi
 %   This function filters the data according to the settings provided as a
 %   step of the preprocessing routine
 
-%   Copyright (C) June 2021
+%   v.1.1.: added band-stop filer
+
+%   Copyright (C) June 2021, modfied January 2022
 %   D. Pedrosa, University Hospital of Gießen and Marburg
 %
 %   This software may be used, copied, or redistributed as long as it is
@@ -27,6 +29,8 @@ cfg.bpfilter    = 'yes';                                                    % ba
 cfg.bpfilttype  = 'firws';                                                  % Filter-type: FIR (window-scaled), for visualisation set cfg.plotfiltresp to 'yes'
 cfg.bpfreq      = [hpf(1) lpf];                                             % filter frequencies
 cfg.plotfiltresp= 'no';
+cfg.dftfilter   = 'yes';
+cfg.dftfreq     = [50, 100];
 data_preproc{1} = ft_preprocessing(cfg, data_clean);
 
 cfg = [];
@@ -35,10 +39,15 @@ cfg.refchannel  = 'EEG';                                                    % to
 cfg.detrend     = 'yes';
 cfg.hpfilter    = 'yes';                                                    % in a second step, data is filtered in order to make TFR estimations possible, therefore, only hpf is used (lpf may be applied later)
 cfg.hpfilttype  = 'firws';                                                  % Filter-type: FIR (window-scaled), for visualisation set cfg.plotfiltresp to 'yes'
-cfg.hpfreq      = hpf(2);                                                   % cutoff frequency
+cfg.hpfreq      = hpf(2); % cutoff frequency
+cfg.bsfilter    = 'yes'; 
+cfg.bsfreq      = [48 52];
 cfg.plotfiltresp= 'no';
+cfg.dftfilter   = 'yes';
+cfg.dftfreq     = [50 100];
 data_preproc{2} = ft_preprocessing(cfg, data_clean);
 
-data_preproc = arrayfun(@(q) ft_struct2single(data_preproc{q}), ...
-    1:numel(data_preproc), 'Un', 0);
+
+% data_preproc = arrayfun(@(q) ft_struct2single(data_preproc{q}), ...
+%     1:numel(data_preproc), 'Un', 0);
 save(fullfile(outdir, filename_filtered), 'data_preproc', '-v7.3');           % saves the preprocessed EEG to a file

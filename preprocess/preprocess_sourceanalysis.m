@@ -27,13 +27,13 @@ load(fullfile(wdir, 'patdat.mat'));                             %#ok<LOAD>  % th
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
 debug           = 0;                                            %#ok<NASGU>
 
-% Define and create necessary inout/output directories (outdir)
+% Define and create necessary input/output directories (outdir)
 dir_mrifiles    = dir(fullfile(wdir, 'raw_MRI'));                           % input directory
 outdir_mriprocessed = fullfile(wdir, 'mri_preprocessed');                   % directory in which data will be saved after processing 'raw MRI'
 if ~exist(outdir_mriprocessed, 'dir'), mkdir(outdir_mriprocessed); end      % create directory, if not present already
 
 % Start preparations for source analyses
-for np = 1:numel(tolom)
+for np = tolom
     temp = control; seq = 'subject';                                        % get metadata correctly along with next line
     if strcmp(type, 'p'); temp = patient; seq = 'patient'; end
    
@@ -45,18 +45,18 @@ for np = 1:numel(tolom)
     %% Create template grid for source analyses later
     filename_template_grid = fullfile(wdir, 'templateMRI', ...
         'template_grid.mat');
+    
     if ~exist(filename_template_grid, 'file')
         create_template_grid(fullfile(wdir, 'templateMRI', ...
         'MRItrem_template0.nii.gz'), wdir);                                 % creates template grid
-    %   'mni_icbm152_t1_tal_nlin_sym_09c.nii'), wdir);                      % creates template grid according
     end
     
     %% Prepare MRI for further processing
     filename_mriprocessed = fullfile(outdir_mriprocessed, ...
-        sprintf('segmentedMRI_%s.mat', code_parti));    % this is needed to check for existance to avoid redundancy
+        sprintf('segmentedMRIsa_%s.mat', code_parti));    % this is needed to check for existance to avoid redundancy
     if ~exist(filename_mriprocessed, 'file')
         filename_erpfinal = fullfile(wdir, 'data_final', ...
-            sprintf('data_final_erp_%s.mat', code_parti));                  % this is needed to merge MRI and sensor data
+            sprintf('data_final_tfr_%s.mat', code_parti));                  % this is needed to merge MRI and sensor data
         
         idx_mri = find(~cellfun(@isempty, regexp({dir_mrifiles.name}, ...
             sprintf('^(MRItrem_template0tANAT_)+(%s)+[0-9A-Za-z_-]*.nii.gz', ...
@@ -71,7 +71,11 @@ for np = 1:numel(tolom)
         end
         
         %% Run necessary steps to get MRI data processed
-        prepare_MRI(code_parti, filename_erpfinal, mri_subj)
+        try
+            prepare_MRI(code_parti, filename_erpfinal, mri_subj)
+        catch
+            fprintf('\n\t Something went wrong with subj: %s !\n', code_parti);
+        end
     else
         fprintf('\n\t MRI already prepared for subj: %s !\n', code_parti);
     end
