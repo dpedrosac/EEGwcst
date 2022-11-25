@@ -4,7 +4,7 @@ function epoch_trials(filename_preproc, filename_save, processed_subj, ...
 %   This function epoches data and marks the "incomplete runs" that is
 %   where errors ocurred or anticipations were traceable
 
-%   Copyright (C) June 2021, modified July 2021
+%   Copyright (C) June 2021, modified July 2021 and October 2022
 %   D. Pedrosa, University Hospital of Gießen and Marburg
 %
 %   This software may be used, copied, or redistributed as long as it is
@@ -28,9 +28,9 @@ for c = 1:2 % loop through both conditions, WO and ALC
     clear data_clean
     data_clean = data_preproc{idx_type};                        %#ok<USENS> % selects whether erp (1) or tfr (2) data is used
 
-    if ~isfield(ev_all, 'incomplete')
+    %if ~isfield(ev_all, 'incomplete')
         [tmp, ~] = select_runs(processed_subj, ROOTDIR);                   % writes the erroneous runs into the events-file
-    end
+    %end
     
     %% Start selecting trials and merge data
     cfg = [];
@@ -57,8 +57,8 @@ for c = 1:2 % loop through both conditions, WO and ALC
     idx_incomplete = idx_incomplete(idx_incomplete<=...                     % this avoids that trials at the end of the run crash the script
         length(data_epoched{c}.trialinfo));
 
-    data_epoched{c}.trialinfo(idx_incomplete) = ...
-        data_epoched{c}.trialinfo(idx_incomplete) + 1000;
+    % data_epoched{c}.trialinfo(idx_incomplete) = ...
+    %    data_epoched{c}.trialinfo(idx_incomplete) + 1000;
     
     % Here, *badtrials* saved in the metadata file are removed""
     

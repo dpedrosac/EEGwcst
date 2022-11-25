@@ -18,7 +18,7 @@ loaddir     = fullfile(ROOTDIR, 'data');
 load(fullfile(wdir, 'patdat.mat'));                                         % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
 steps2apply = 1:3;                                                          % three steps available: (1): filter data (2): epoching and merging data (3): removing bad trials and 'runs'
-type_calc   = 'tfr';%'erp';
+type_calc   = 'erp';%'tfr';
 
 for np = tolom % loop through all subjects of one group
     temp = control; seq = 'subject';
@@ -106,33 +106,16 @@ for np = tolom % loop through all subjects of one group
                     end
                     idx_bad = [idx_bad; find(data_merged.trialinfo>1000)];  %#ok<*AGROW>
                     
+                    bad_manual = 1;
+                    switch bad_manual
+                        case (1)
+                        idx_bad = sort(unique([idx_bad(:); bad_trials{c}(:)]));
+                    end
+                    
                     cfg = [];
                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
                         idx_bad);
-                    data_merged = ft_selectdata(cfg, data_merged);
-%                     
-%                     % Remove bad trials after eyeballing (if necessary)
-%                     if isempty(bad_trials) % if bad trials not yet identified, this plots all trials in order to check 'visually'
-%                         [bc, bad_trials] = plot_relevant_trials(data_merged);
-%                         if strcmp(type, 'p')
-%                             patient(np).badtrials = bad_trials;
-%                             patient(np).badchannels{1} = ...
-%                             unique([patient(np).badchannels{1}, bc{1:end-1}]);
-%                         else
-%                             control(np).badtrials = bad_trials;
-%                             control(np).badchannels{1} = ...
-%                             unique([control(np).badchannels{1}, bc{1:end-1}]);
-%                         end
-%                         save(fullfile(ROOTDIR, 'data', 'patdat.mat'),...    % save new patdat.mat file with metadata
-%                             'control', 'patient', '-v7.3');
-%                     end
-                    
-%                     cfg = [];
-%                     cfg.trials = setdiff(1:length(data_merged.trialinfo), ...
-%                         bad_trials);
-%                     data_final = ft_selectdata(cfg, data_merged);
-                    %data_final = ft_struct2single(data_merged);
-                    data_final = data_merged;
+                    data_final = ft_selectdata(cfg, data_merged);
                     save(fullfile(outdir, filename_final), ...
                         'data_final', '-v7.3');                             % saves the cleaned EEG data to one file
                 end

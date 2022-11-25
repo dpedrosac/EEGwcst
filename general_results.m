@@ -26,7 +26,7 @@ for g = 1:2 % loop through both groups (1) ET-patients, (2) control subjects
     if g == 1; dattmp = patient(idx{g}); else dattmp = control(idx{g}); end% in order to make the code more efficient, a temporal data structure is defined
     
     %% Estinate reaction times for all subjects
-    rt_all = rtimes_trials(subj1, subj2, paths);                       % uses a different script to extract the response times for the differentv trials;
+    %rt_all = rtimes_trials(subj1, subj2, paths);                       % uses a different script to extract the response times for the differentv trials;
     %%  ==============================================================   %%
     % rt_all consists of two cells (CTRL{1} vs. ET{2}) with four columns:
     %   - shift-wo reaction times

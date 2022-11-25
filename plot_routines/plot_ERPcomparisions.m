@@ -46,8 +46,7 @@ end
 % Formulae used throughout script
 % fx_bslsub_all   = ...
 %     @(x,z) bsxfun(@minus, x, nanmean(nanmean(x(:,z(1):z(2)),1)));
-fx_bslsub_all   = ...
-    @(x,z) bsxfun(@minus, x, nanmean(x(:,z(1):z(2)),2));
+fx_bslsub_all   = @(x,z) bsxfun(@minus, x, nanmean(x(:,z(1):z(2)),2));
 fac             = 1;                                                        % factor to create SEM for plots
 fx_plots = {@(x) fac*nanmean(x), ...
     @(x) fac*(nanmean(x) - 1.96*nanstd(x)./sqrt(size(x,1))), ...
@@ -110,11 +109,11 @@ for dId = 1:numel(ch) % loop through the channels of interest
             length(toi(1):toi(2)));                           % pre-allocate space
         for fx = 1:numel(fx_plots) % loop through different metrics
             tmp_data_avg(fx,:) = ...
-                fac * fx_plots{fx}(smoothdata(dat_all{g}(:,toi(1):toi(2)), 2, 'gaussian', 4));
+                fac * fx_plots{fx}(smoothdata(dat_all{g}(:,toi(1):toi(2)), 2, 'gaussian', 6));
         end
         
         % Line plots and fill out in between to show Confidence interval
-        m(g) = plot(time_vector, smoothdata(tmp_data_avg(1,:), 2, 'gaussian', 4), ...
+        m(g) = plot(time_vector, smoothdata(tmp_data_avg(1,:), 2, 'gaussian', 6), ...
             'Color', p.colors{g+2}); hold on;
         fillx = [time_vector, fliplr(time_vector)];
         filly = [tmp_data_avg(2,:), fliplr(tmp_data_avg(3,:))];

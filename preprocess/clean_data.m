@@ -17,7 +17,7 @@ function clean_data(subj, ROOTDIR, wdir, type)
 load(fullfile(wdir, 'patdat.mat'));                                         % this file loads the meta data
 if strcmp(type, 'p'); tolom = subj{2}; else; tolom = subj{1}; end           % selects whether (p) pateints or controls (c) are analysed (see (type))
 
-steps2apply     = 1:2;                                                        % four steps available: (1): load data (2): downsample (3): read HDR and events (4): artifact removal
+steps2apply     = 1:3;                                                        % four steps available: (1): load data (2): downsample (3): read HDR and events (4): artifact removal
 flag_check      = 0;                                                        % this option is intended for debgugging purposes, that is to visualise steps
 cond            = {'WO', 'ALC'};                                            % different conditions, later important for saving
 fx_transpose    = @(x) x.';
@@ -127,7 +127,7 @@ for np = tolom                                                             % pro
                             cfg.channel         = 'EEG';                    % channels to plot
                             cfg.viewmode        = 'vertical';
                             cfg.preproc.bpfilter= 'yes';                    % defines the preprocessing thta happens with the data, that is
-                            cfg.preproc.bpfreq  = [1 40];                   % band-pass filtering
+                            cfg.preproc.bpfreq  = [.1 30];                   % band-pass filtering
                             cfg.preproc.demean  = 'yes';                    % de-meaning
                             cfg.preproc.detrend = 'yes';                    % de-trending
                             cfg.blocksize       = 10;                       % no. of seconds to display

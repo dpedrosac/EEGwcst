@@ -1,10 +1,10 @@
-function estimate_erp_averages_generic(all_subj, ROOTDIR, wdir, toi, ending)
+function estimate_erp_averages_generic(all_subj, ROOTDIR, wdir, toi, ending, conditional)
 
 %   This function loads all data and estimates the metrics needed, saving
 %   them as structures (avg*filename*). As a new feature, there is now a
 %   conversion with ft_struct2single(x)
 
-%   Copyright (C) July 2021
+%   Copyright (C) July 2021, modified October 2022 (added conditional)
 %   D. Pedrosa, University Hospital of Gießen and Marburg
 
 %   This software may be used, copied, or redistributed as long as it is
@@ -23,27 +23,47 @@ function estimate_erp_averages_generic(all_subj, ROOTDIR, wdir, toi, ending)
 %     [110, 120]};    % Shift trials(w/ alcohol)                  %#ok<*NBRAK>
 
 %% Start isolating trials of interest (toi) for all subjects
-
-if nargin > 5
+if nargin == 5                                                              % in general no conditional trialnumibers are needed/added
+    conditional = [];
+elseif nargin < 5
     fprinft('\neither trials of interest (toi) or ending or both missing, please double-check!');
     return
 end
 
-inputdir = fullfile(wdir, 'data_final');
-outdir = fullfile(ROOTDIR, 'data');
+inputdir = fullfile(wdir, 'data_final');                                    % directory from which data will be loaded
+outdir = fullfile(ROOTDIR, 'data');                                         % folder into which data will be saved
 
 tic;
 avg = cell(1,numel(all_subj));
-parfor proc = 1:numel(all_subj)
+for proc = 1:numel(all_subj) % loop through subjects
     fprintf('\nthe subject being processed is: %s \n', ...
         strcat('S', num2str(all_subj(proc))));
     filename_data = fullfile(inputdir, ...
         ['data_final_erp_S', num2str(all_subj(proc)),'.mat']);
-    partemp = load(filename_data);
+    try partemp = load(filename_data); catch; continue; end
+    
+    if ~isempty(conditional)
+        alltrials = find(ismember(partemp.data_final.trialinfo, toi));      % ectrsct all trials from xxx.trialinfo
+        trls_to_remove = [];
+        try
+            for s = 1:numel(alltrials)
+                trls_to_check = partemp.data_final.trialinfo(alltrials(s) - 1);
+                if ismember(trls_to_check, conditional)
+                    trls_to_remove = [trls_to_remove, alltrials(s)];
+                end
+            end
+            trls2include = alltrials(~ismember(alltrials, ...
+                trls_to_remove));
+        catch
+            trls2include = find(ismember(partemp.data_final.trialinfo, toi));
+        end
+    else
+        trls2include = find(ismember(partemp.data_final.trialinfo, toi));
+    end
     
     % Extract trials of interest (toi)
     cfg = [];
-    cfg.trials = find(ismember(partemp.data_final.trialinfo, toi));
+    cfg.trials = trls2include;
     data_temp = ft_selectdata(cfg, partemp.data_final);
     if isempty(data_temp.trialinfo), continue; end
     

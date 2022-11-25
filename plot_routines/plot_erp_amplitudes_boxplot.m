@@ -21,16 +21,16 @@ end
 cfg = [];
 cfg.method = 'distance';
 cfg.feedback = 'no';                                                       % can be set to 'yes' to see results
-cfg.neighbourdist = .07;
-neighbours = ft_prepare_neighbours(cfg, data_final);
+cfg.neighbourdist = .02;
+neighbours = ft_prepare_neighbours(cfg, data_wo{1});
 
 %% Extract data for both groups and all conditions
 % TODO get data into long format with subject + condition rowwise and one colum for
 % value and run stats: https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/#two-way-repeated-measures-anova
 all_labels  = data_wo{1}.label;
-ch_oi       = neighbours(strcmp(all_labels, channel)).neighblabel;
+ch_oi       = [ channel, neighbours(strcmp(all_labels, channel)).neighblabel ];
 toi_idx     = dsearchn(data_wo{1}.time', toi');                             % time of interest for ERP estimation
-bsl         = [-.15 0];
+bsl         = [-.1 0];
 bsl_idx     = dsearchn(data_wo{1}.time', bsl');                             % indices for baseline period
 iter        = 0;
 
@@ -78,8 +78,9 @@ function value = ...
 
 fx_bslsub_all   = ...
     @(x,z) bsxfun(@minus, x, mean(x(:,z(1):z(2)),2));
-chtemp = find(contains(all_labels, ch_oi));
+chtemp = find(ismember(all_labels, ch_oi));
 data_temp = squeeze(data_subj.avg(:,chtemp,:));                             % extract channels of interest
+if size(chtemp,1) == 1; data_temp = data_temp.'; end
 dat_all = fx_bslsub_all(data_temp, bsl_idx); clear data_temp                % subtract baseline from all trials
 
 value = mean(mean(dat_all(:, toi_idx(1):toi_idx(2))));                      % returns the average for the subject
